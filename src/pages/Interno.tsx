@@ -72,7 +72,9 @@ const Interno = () => {
   const { toast } = useToast();
 
   useEffect(() => {
+    console.log('Interno page loaded, active tab:', activeTab);
     if (activeTab === 'materiais') {
+      console.log('Loading materials...');
       loadMaterials();
     }
   }, [activeTab]);
