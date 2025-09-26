@@ -177,9 +177,9 @@ export const MaterialSelector: React.FC<MaterialSelectorProps> = ({
 
           {/* Lista de Materiais Disponíveis */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-80 overflow-y-auto">
-            {filteredMaterials.map((material) => (
+            {filteredMaterials.map((material, index) => (
               <Button
-                key={material.SKU}
+                key={`${material.SKU}-${index}`}
                 variant="material"
                 className="p-4 h-auto flex-col items-start text-left justify-start"
                 onClick={() => addMaterial(material)}
