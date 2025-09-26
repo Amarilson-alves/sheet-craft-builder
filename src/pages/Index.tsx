@@ -1,11 +1,46 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+    <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-4">
+      <div className="max-w-md w-full">
+        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 text-center shadow-strong">
+          <div className="mb-6">
+            <h1 className="text-4xl font-bold text-white mb-2">
+              Cadastro de Materiais
+            </h1>
+            <p className="text-white/80 text-lg">
+              Sistema para cadastrar e gerenciar materiais
+            </p>
+          </div>
+          
+          <div className="space-y-4">
+            <Button 
+              asChild 
+              variant="hero" 
+              size="xl" 
+              className="w-full justify-start bg-secondary hover:bg-secondary/90"
+            >
+              <Link to="/campo" className="flex items-center gap-3">
+                <span className="text-2xl">🏗️</span>
+                <span>Acesso Campo - Técnicos</span>
+              </Link>
+            </Button>
+            
+            <Button 
+              asChild 
+              variant="hero" 
+              size="xl" 
+              className="w-full justify-start bg-success hover:bg-success/90"
+            >
+              <Link to="/interno" className="flex items-center gap-3">
+                <span className="text-2xl">👨‍💼</span>
+                <span>Acesso Interno - Administração</span>
+              </Link>
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );

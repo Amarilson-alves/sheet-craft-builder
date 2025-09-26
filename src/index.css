@@ -17,17 +17,24 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Sistema de cores baseado no design existente */
+    --primary: 210 11% 15%; /* #2c3e50 */
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 204 70% 53%; /* #3498db */
+    --secondary-foreground: 0 0% 98%;
+
+    --accent: 6 78% 57%; /* #e74c3c */
+    --accent-foreground: 0 0% 98%;
+
+    --success: 145 63% 49%; /* #2ecc71 */
+    --success-foreground: 0 0% 98%;
+
+    --warning: 35 84% 62%; /* #f39c12 */
+    --warning-foreground: 0 0% 98%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
@@ -37,6 +44,19 @@ All colors MUST be HSL.
     --ring: 222.2 84% 4.9%;
 
     --radius: 0.5rem;
+
+    /* Gradientes para o design */
+    --gradient-hero: linear-gradient(135deg, hsl(225 73% 57%), hsl(267 44% 56%));
+    --gradient-card: linear-gradient(145deg, hsl(var(--background)), hsl(210 40% 98%));
+    
+    /* Sombras elegantes */
+    --shadow-soft: 0 2px 10px hsl(var(--primary) / 0.1);
+    --shadow-medium: 0 4px 20px hsl(var(--primary) / 0.15);
+    --shadow-strong: 0 8px 32px hsl(var(--primary) / 0.2);
+
+    /* Animações */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
     --sidebar-background: 0 0% 98%;
 
