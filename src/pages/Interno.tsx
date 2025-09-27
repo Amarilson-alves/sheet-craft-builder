@@ -61,7 +61,7 @@ const Interno = () => {
     data: '',
     dateFrom: '',
     dateTo: '',
-    tipoObra: ''
+    tipoObra: 'todos'
   });
   const [newMaterial, setNewMaterial] = useState({
     code: '',
@@ -84,7 +84,7 @@ const Interno = () => {
     try {
       const params = new URLSearchParams({
         action: 'getObras',
-        ...Object.fromEntries(Object.entries(filters).filter(([_, v]) => v))
+        ...Object.fromEntries(Object.entries(filters).filter(([key, v]) => v && !(key === 'tipoObra' && v === 'todos')))
       });
 
       const response = await fetch(`${SCRIPT_URL}?${params}`);
@@ -254,7 +254,7 @@ const Interno = () => {
       data: '',
       dateFrom: '',
       dateTo: '',
-      tipoObra: ''
+      tipoObra: 'todos'
     });
     setObras([]);
     toast({
@@ -359,7 +359,7 @@ const Interno = () => {
                         <SelectValue placeholder="Selecione o tipo" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Todos</SelectItem>
+                        <SelectItem value="todos">Todos</SelectItem>
                         <SelectItem value="Alivio">Alívio</SelectItem>
                         <SelectItem value="Adequacao">Adequação</SelectItem>
                       </SelectContent>
