@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Materiais - Técnicos</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --background: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        /* Header */
+        .header {
+            background: var(--primary);
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: var(--shadow);
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .back-btn {
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 0.375rem;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .header-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        
+        /* Main Content */
+        .main {
+            padding: 2rem 0;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .card-content {
+            padding: 1.5rem;
+        }
+        
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        @media (min-width: 768px) {
+            .form-row-2 { grid-template-columns: 1fr 1fr; }
+            .form-row-3 { grid-template-columns: 2fr 1fr; }
+        }
+        
+        .label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+        
+        .required::after {
+            content: ' *';
+            color: var(--accent);
+        }
+        
+        .input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        
+        .input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        .select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            background: white;
+            cursor: pointer;
+        }
+        
+        /* Material Search */
+        .search-container {
+            position: relative;
+        }
+        
+        .search-input {
+            padding-left: 2.5rem;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+        
+        .suggestions-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            box-shadow: var(--shadow-lg);
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 1000;
+            margin-top: 0.25rem;
+            display: none;
+        }
+        
+        .suggestions-dropdown.show {
+            display: block;
+        }
+        
+        .suggestions-header {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            background: var(--background);
+            font-weight: 500;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+        
+        .filters {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .filter-chip {
+            padding: 0.25rem 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+        
+        .filter-chip.active {
+            background: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+        }
+        
+        .filter-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+        
+        .filter-toggle input {
+            margin: 0;
+        }
+        
+        .suggestions-list {
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        
+        .suggestion-item {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .suggestion-item:hover,
+        .suggestion-item.highlighted {
+            background: var(--background);
+        }
+        
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+        
+        .material-description {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        .material-details {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        .badge {
+            padding: 0.125rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .badge-primary {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .badge-secondary {
+            background: var(--border);
+            color: var(--text);
+        }
+        
+        .badge-interno {
+            background: var(--success);
+            color: white;
+        }
+        
+        .badge-externo {
+            background: var(--warning);
+            color: white;
+        }
+        
+        .no-results {
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-muted);
+        }
+        
+        .no-results i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.5;
+        }
+        
+        .show-more-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--background);
+            border: none;
+            border-top: 1px solid var(--border);
+            cursor: pointer;
+            font-size: 0.875rem;
+            color: var(--secondary);
+            transition: background-color 0.2s;
+        }
+        
+        .show-more-btn:hover {
+            background: var(--border);
+        }
+        
+        /* Selected Materials */
+        .selected-material {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .material-info {
+            flex: 1;
+        }
+        
+        .material-name {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .qty-btn {
+            width: 2rem;
+            height: 2rem;
+            border: 1px solid var(--border);
+            background: white;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+        
+        .qty-btn:hover {
+            background: var(--background);
+        }
+        
+        .qty-input {
+            width: 4rem;
+            text-align: center;
+            padding: 0.25rem;
+            border: 1px solid var(--border);
+            border-radius: 0.25rem;
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1a252f;
+        }
+        
+        .btn-outline {
+            background: white;
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        
+        .btn-outline:hover {
+            background: var(--background);
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #27ae60;
+        }
+        
+        .btn-large {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        @media (max-width: 640px) {
+            .actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                justify-content: center;
+            }
+        }
+        
+        /* Loading and Toast */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 2rem;
+        }
+        
+        .spinner {
+            width: 1.5rem;
+            height: 1.5rem;
+            border: 2px solid var(--border);
+            border-top: 2px solid var(--secondary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .toast {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: var(--shadow-lg);
+            z-index: 2000;
+            min-width: 300px;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        .toast-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .toast-error {
+            background: var(--accent);
+            color: white;
+        }
+        
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Hidden */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- URL do Script (oculto) -->
+    <input type="hidden" id="scriptUrl" value="https://script.google.com/macros/s/AKfycbyYZqR0fcxnlulAEpZenLmpy1LksliyZ8V7KvVoFdYAO77CaVzONRH-eVMyxcf4QDgrTw/exec">
+    
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <button class="back-btn" onclick="window.location.href='index.html'">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div>
+                    <h1 class="header-title">
+                        <i class="fas fa-building"></i>
+                        Cadastro de Materiais - Técnicos
+                    </h1>
+                    <p class="header-subtitle">Sistema para registro de obras e materiais utilizados</p>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Dados da Obra -->
+            <div class="card fade-in">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-user"></i>
+                        Dados da Obra
+                    </h2>
+                </div>
+                <div class="card-content">
+                    <div class="form-row form-row-2">
+                        <div class="form-group">
+                            <label class="label required" for="tecnico">Nome Técnico</label>
+                            <input class="input" type="text" id="tecnico" placeholder="Seu nome completo">
+                        </div>
+                        <div class="form-group">
+                            <label class="label" for="idObra">ID da Obra (opcional)</label>
+                            <input class="input" type="text" id="idObra" placeholder="Ex: OBRA-2023-001">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row form-row-3">
+                        <div class="form-group">
+                            <label class="label required" for="endereco">Endereço</label>
+                            <input class="input" type="text" id="endereco" placeholder="Ex: Rua das Flores">
+                        </div>
+                        <div class="form-group">
+                            <label class="label required" for="numero">Número</label>
+                            <input class="input" type="text" id="numero" placeholder="Ex: 123">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="label" for="complemento">Complemento (opcional)</label>
+                        <input class="input" type="text" id="complemento" placeholder="Ex: Apt 101, Fundos, etc">
+                    </div>
+                    
+                    <div class="form-row form-row-2">
+                        <div class="form-group">
+                            <label class="label required" for="tipoObra">Tipo de Obra</label>
+                            <select class="select" id="tipoObra">
+                                <option value="">Selecione o tipo</option>
+                                <option value="Alivio">Alívio</option>
+                                <option value="Adequacao">Adequação</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="label" for="obs">Observações (opcional)</label>
+                            <input class="input" type="text" id="obs" placeholder="Observações sobre a obra">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Busca de Materiais -->
+            <div class="card fade-in">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-search"></i>
+                        Buscar Material
+                    </h2>
+                </div>
+                <div class="card-content">
+                    <div class="search-container">
+                        <input
+                            class="input search-input"
+                            type="text"
+                            id="materialSearch"
+                            placeholder="Digite para buscar (ex.: 'AS')"
+                            autocomplete="off"
+                        >
+                        <i class="fas fa-search search-icon"></i>
+                        
+                        <div class="suggestions-dropdown" id="suggestionsDropdown">
+                            <div class="suggestions-header" id="suggestionsHeader">
+                                0 resultados
+                            </div>
+                            
+                            <div class="filters">
+                                <div class="filter-chip active" data-category="todos">Todos</div>
+                                <div class="filter-chip" data-category="Interno">Interno</div>
+                                <div class="filter-chip" data-category="Externo">Externo</div>
+                                
+                                <label class="filter-toggle">
+                                    <input type="checkbox" id="showOnlyAvailable">
+                                    Apenas disponíveis
+                                </label>
+                            </div>
+                            
+                            <div class="suggestions-list" id="suggestionsList">
+                                <div class="no-results">
+                                    <i class="fas fa-package"></i>
+                                    <p>Digite para buscar materiais</p>
+                                </div>
+                            </div>
+                            
+                            <button class="show-more-btn hidden" id="showMoreBtn">
+                                Mostrar mais resultados
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="loading hidden" id="loadingMaterials">
+                        <div class="spinner"></div>
+                        <span>Carregando materiais...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Materiais Selecionados -->
+            <div class="card fade-in hidden" id="selectedMaterialsCard">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-check-circle"></i>
+                        Materiais Selecionados (<span id="selectedCount">0</span>)
+                    </h2>
+                </div>
+                <div class="card-content">
+                    <div id="selectedMaterialsList"></div>
+                </div>
+            </div>
+            
+            <!-- Ações -->
+            <div class="card fade-in">
+                <div class="card-content">
+                    <div class="actions">
+                        <button class="btn btn-success btn-large" id="saveBtn">
+                            <i class="fas fa-save"></i>
+                            Salvar Obra
+                        </button>
+                        <button class="btn btn-outline btn-large" id="clearBtn">
+                            <i class="fas fa-eraser"></i>
+                            Limpar Formulário
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script>
+        // Estado global
+        let materials = [];
+        let selectedMaterials = [];
+        let filteredMaterials = [];
+        let currentFilter = { categoria: 'todos', somenteDisponiveis: false };
+        let searchTimeout;
+        let highlightedIndex = -1;
+        let displayLimit = 50;
+        let isLoading = false;
+        
+        // Elementos DOM
+        const scriptUrl = document.getElementById('scriptUrl').value;
+        const searchInput = document.getElementById('materialSearch');
+        const dropdown = document.getElementById('suggestionsDropdown');
+        const header = document.getElementById('suggestionsHeader');
+        const suggestionsList = document.getElementById('suggestionsList');
+        const showMoreBtn = document.getElementById('showMoreBtn');
+        const selectedMaterialsCard = document.getElementById('selectedMaterialsCard');
+        const selectedMaterialsList = document.getElementById('selectedMaterialsList');
+        const selectedCount = document.getElementById('selectedCount');
+        const loadingMaterials = document.getElementById('loadingMaterials');
+        const saveBtn = document.getElementById('saveBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            carregarMateriais();
+            wireEventosBusca();
+            setupFormEvents();
+        });
+        
+        // Carregar materiais do backend
+        async function carregarMateriais() {
+            if (isLoading) return;
+            
+            isLoading = true;
+            loadingMaterials.classList.remove('hidden');
+            
+            try {
+                const response = await fetch(`${scriptUrl}?action=getMaterials`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                materials = data.materials || [];
+                mostrarToast('success', `${materials.length} materiais carregados com sucesso`);
+                
+            } catch (error) {
+                console.error('Erro ao carregar materiais:', error);
+                mostrarToast('error', 'Erro ao carregar materiais: ' + error.message);
+                materials = [];
+            } finally {
+                isLoading = false;
+                loadingMaterials.classList.add('hidden');
+            }
+        }
+        
+        // Normalizar texto (remover acentos, espaços extras, minúsculas)
+        function normalizarTexto(str) {
+            return str
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+        
+        // Filtrar materiais por prefixo
+        function filtrarPorPrefixo(query, lista, filtros = {}) {
+            const { categoria = 'todos', somenteDisponiveis = false } = filtros;
+            const normalizedQuery = normalizarTexto(query);
+            
+            return lista.filter(material => {
+                // Filtro por prefixo na descrição
+                const matchesQuery = query === '' || 
+                    normalizarTexto(material.Descrição).startsWith(normalizedQuery) ||
+                    normalizarTexto(material.SKU).startsWith(normalizedQuery);
+                
+                // Filtro por categoria
+                const matchesCategory = categoria === 'todos' || material.Categoria === categoria;
+                
+                // Filtro por disponibilidade
+                const matchesAvailable = !somenteDisponiveis || (material.Qtdd_Depósito > 0);
+                
+                return matchesQuery && matchesCategory && matchesAvailable;
+            });
+        }
+        
+        // Renderizar sugestões
+        function renderSugestoes(lista, limite = 50, showMore = false) {
+            const itemsToShow = showMore ? lista : lista.slice(0, limite);
+            const hasMore = lista.length > limite && !showMore;
+            
+            // Atualizar header
+            header.textContent = `${lista.length} resultado${lista.length !== 1 ? 's' : ''}`;
+            
+            // Limpar lista
+            suggestionsList.innerHTML = '';
+            
+            if (itemsToShow.length === 0) {
+                suggestionsList.innerHTML = `
+                    <div class="no-results">
+                        <i class="fas fa-package"></i>
+                        <p>Nenhum material encontrado</p>
+                    </div>
+                `;
+                showMoreBtn.classList.add('hidden');
+                return;
+            }
+            
+            // Renderizar itens
+            itemsToShow.forEach((material, index) => {
+                const item = document.createElement('div');
+                item.className = 'suggestion-item';
+                item.dataset.index = index;
+                item.dataset.sku = material.SKU;
+                
+                item.innerHTML = `
+                    <div class="material-description">${material.Descrição}</div>
+                    <div class="material-details">
+                        <span class="badge badge-secondary">${material.SKU}</span>
+                        <span class="badge badge-${material.Categoria.toLowerCase()}">${material.Categoria}</span>
+                        <span>Unidade: ${material.Unidade}</span>
+                        <span class="badge badge-primary">Estoque: ${material.Qtdd_Depósito}</span>
+                    </div>
+                `;
+                
+                item.addEventListener('click', () => selecionarMaterial(material));
+                suggestionsList.appendChild(item);
+            });
+            
+            // Mostrar/ocultar botão "Mostrar mais"
+            if (hasMore) {
+                showMoreBtn.classList.remove('hidden');
+                showMoreBtn.onclick = () => renderSugestoes(lista, limite, true);
+            } else {
+                showMoreBtn.classList.add('hidden');
+            }
+        }
+        
+        // Selecionar material
+        function selecionarMaterial(material) {
+            const existing = selectedMaterials.find(m => m.SKU === material.SKU);
+            
+            if (existing) {
+                existing.quantidadeSelecionada += 1;
+            } else {
+                selectedMaterials.push({
+                    ...material,
+                    quantidadeSelecionada: 1
+                });
+            }
+            
+            updateSelectedMaterials();
+            dropdown.classList.remove('show');
+            searchInput.value = '';
+            searchInput.focus();
+            
+            mostrarToast('success', `Material "${material.Descrição}" adicionado`);
+        }
+        
+        // Atualizar lista de materiais selecionados
+        function updateSelectedMaterials() {
+            selectedCount.textContent = selectedMaterials.length;
+            
+            if (selectedMaterials.length === 0) {
+                selectedMaterialsCard.classList.add('hidden');
+                return;
+            }
+            
+            selectedMaterialsCard.classList.remove('hidden');
+            
+            selectedMaterialsList.innerHTML = selectedMaterials.map(material => `
+                <div class="selected-material">
+                    <div class="material-info">
+                        <div class="material-name">${material.Descrição}</div>
+                        <div class="material-details">
+                            <span class="badge badge-secondary">${material.SKU}</span>
+                            <span class="badge badge-${material.Categoria.toLowerCase()}">${material.Categoria}</span>
+                            <span>Unidade: ${material.Unidade}</span>
+                        </div>
+                    </div>
+                    <div class="quantity-controls">
+                        <button class="qty-btn" onclick="updateQuantity('${material.SKU}', ${material.quantidadeSelecionada - 1})">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <input class="qty-input" type="number" value="${material.quantidadeSelecionada}" 
+                               onchange="updateQuantity('${material.SKU}', parseInt(this.value) || 0)" min="0">
+                        <button class="qty-btn" onclick="updateQuantity('${material.SKU}', ${material.quantidadeSelecionada + 1})">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Atualizar quantidade de material
+        function updateQuantity(sku, quantity) {
+            if (quantity <= 0) {
+                selectedMaterials = selectedMaterials.filter(m => m.SKU !== sku);
+            } else {
+                const material = selectedMaterials.find(m => m.SKU === sku);
+                if (material) {
+                    material.quantidadeSelecionada = quantity;
+                }
+            }
+            updateSelectedMaterials();
+        }
+        
+        // Configurar eventos de busca
+        function wireEventosBusca() {
+            // Input de busca
+            searchInput.addEventListener('keyup', (e) => {
+                clearTimeout(searchTimeout);
+                
+                if (e.key === 'ArrowDown') {
+                    navigateSuggestions(1);
+                    return;
+                } else if (e.key === 'ArrowUp') {
+                    navigateSuggestions(-1);
+                    return;
+                } else if (e.key === 'Enter') {
+                    selectHighlighted();
+                    return;
+                } else if (e.key === 'Escape') {
+                    dropdown.classList.remove('show');
+                    return;
+                }
+                
+                searchTimeout = setTimeout(() => {
+                    const query = searchInput.value.trim();
+                    
+                    if (query === '') {
+                        dropdown.classList.remove('show');
+                        return;
+                    }
+                    
+                    filteredMaterials = filtrarPorPrefixo(query, materials, currentFilter);
+                    renderSugestoes(filteredMaterials, displayLimit);
+                    dropdown.classList.add('show');
+                    highlightedIndex = -1;
+                }, 200);
+            });
+            
+            // Filtros de categoria
+            document.querySelectorAll('.filter-chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+                    chip.classList.add('active');
+                    currentFilter.categoria = chip.dataset.category;
+                    
+                    if (searchInput.value.trim()) {
+                        filteredMaterials = filtrarPorPrefixo(searchInput.value.trim(), materials, currentFilter);
+                        renderSugestoes(filteredMaterials, displayLimit);
+                    }
+                });
+            });
+            
+            // Filtro de disponibilidade
+            document.getElementById('showOnlyAvailable').addEventListener('change', (e) => {
+                currentFilter.somenteDisponiveis = e.target.checked;
+                
+                if (searchInput.value.trim()) {
+                    filteredMaterials = filtrarPorPrefixo(searchInput.value.trim(), materials, currentFilter);
+                    renderSugestoes(filteredMaterials, displayLimit);
+                }
+            });
+            
+            // Fechar dropdown ao clicar fora
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.search-container')) {
+                    dropdown.classList.remove('show');
+                }
+            });
+        }
+        
+        // Navegação por teclado
+        function navigateSuggestions(direction) {
+            const items = document.querySelectorAll('.suggestion-item');
+            if (items.length === 0) return;
+            
+            if (highlightedIndex >= 0) {
+                items[highlightedIndex].classList.remove('highlighted');
+            }
+            
+            highlightedIndex += direction;
+            
+            if (highlightedIndex < 0) {
+                highlightedIndex = items.length - 1;
+            } else if (highlightedIndex >= items.length) {
+                highlightedIndex = 0;
+            }
+            
+            items[highlightedIndex].classList.add('highlighted');
+            items[highlightedIndex].scrollIntoView({ block: 'nearest' });
+        }
+        
+        // Selecionar item destacado
+        function selectHighlighted() {
+            const highlighted = document.querySelector('.suggestion-item.highlighted');
+            if (highlighted) {
+                const sku = highlighted.dataset.sku;
+                const material = materials.find(m => m.SKU === sku);
+                if (material) {
+                    selecionarMaterial(material);
+                }
+            }
+        }
+        
+        // Configurar eventos do formulário
+        function setupFormEvents() {
+            // Botão salvar
+            saveBtn.addEventListener('click', handleSave);
+            
+            // Botão limpar
+            clearBtn.addEventListener('click', handleClear);
+        }
+        
+        // Salvar obra
+        async function handleSave() {
+            const formData = {
+                tecnico: document.getElementById('tecnico').value.trim(),
+                idObra: document.getElementById('idObra').value.trim(),
+                endereco: document.getElementById('endereco').value.trim(),
+                numero: document.getElementById('numero').value.trim(),
+                complemento: document.getElementById('complemento').value.trim(),
+                tipoObra: document.getElementById('tipoObra').value,
+                obs: document.getElementById('obs').value.trim()
+            };
+            
+            // Validação
+            if (!formData.tecnico || !formData.endereco || !formData.numero || !formData.tipoObra) {
+                mostrarToast('error', 'Preencha todos os campos obrigatórios');
+                return;
+            }
+            
+            if (selectedMaterials.length === 0) {
+                mostrarToast('error', 'Selecione pelo menos um material');
+                return;
+            }
+            
+            // Salvar
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<div class="spinner"></div> Salvando...';
+            
+            try {
+                const payload = {
+                    ...formData,
+                    materiais: selectedMaterials.map(m => ({
+                        code: m.SKU,
+                        name: m.Descrição,
+                        unit: m.Unidade,
+                        quantity: m.quantidadeSelecionada
+                    }))
+                };
+                
+                const response = await fetch(scriptUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'saveObra',
+                        data: payload
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+                
+                mostrarToast('success', `Obra salva com sucesso! ID: ${result.obraId}`);
+                handleClear();
+                
+            } catch (error) {
+                console.error('Erro ao salvar obra:', error);
+                mostrarToast('error', 'Erro ao salvar obra: ' + error.message);
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-save"></i> Salvar Obra';
+            }
+        }
+        
+        // Limpar formulário
+        function handleClear() {
+            // Limpar campos do formulário
+            document.getElementById('tecnico').value = '';
+            document.getElementById('idObra').value = '';
+            document.getElementById('endereco').value = '';
+            document.getElementById('numero').value = '';
+            document.getElementById('complemento').value = '';
+            document.getElementById('tipoObra').value = '';
+            document.getElementById('obs').value = '';
+            
+            // Limpar busca e materiais selecionados
+            searchInput.value = '';
+            selectedMaterials = [];
+            updateSelectedMaterials();
+            dropdown.classList.remove('show');
+            
+            mostrarToast('success', 'Formulário limpo com sucesso');
+        }
+        
+        // Mostrar toast
+        function mostrarToast(tipo, mensagem) {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${tipo}`;
+            toast.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-${tipo === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                    <span>${mensagem}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            // Mostrar
+            setTimeout(() => toast.classList.add('show'), 100);
+            
+            // Remover após 3 segundos
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
