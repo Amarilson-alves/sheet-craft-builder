@@ -4,20 +4,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { MaterialSelector } from "@/components/MaterialSelector";
-import { ArrowLeft, Save, Eraser, Building, User } from "lucide-react";
+import MaterialSearch from "@/components/MaterialSearch";
+import { useMaterials } from "@/hooks/useMaterials";
+import { ArrowLeft, Save, Eraser, Building, User, Package, Minus, Plus } from "lucide-react";
 import { Link } from "react-router-dom";
-
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyYZqR0fcxnlulAEpZenLmpy1LksliyZ8V7KvVoFdYAO77CaVzONRH-eVMyxcf4QDgrTw/exec";
-
-interface SelectedMaterial {
-  SKU: string;
-  Descrição: string;
-  Unidade: string;
-  Categoria: string;
-  quantidadeSelecionada: number;
-}
+import { ENV } from "@/lib/env";
+import type { Material, SelectedMaterial } from "@/types/material";
 
 const Campo = () => {
   const [formData, setFormData] = useState({
@@ -32,6 +26,7 @@ const Campo = () => {
   const [selectedMaterials, setSelectedMaterials] = useState<SelectedMaterial[]>([]);
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
+  const { data: materials, isLoading, isError } = useMaterials();
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -69,7 +64,7 @@ const Campo = () => {
         }))
       };
 
-      const response = await fetch(SCRIPT_URL, {
+      const response = await fetch(ENV.VITE_API_BASE_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -121,6 +116,41 @@ const Campo = () => {
       title: "Formulário limpo",
       description: "Todos os dados foram removidos",
     });
+  };
+
+  const handleMaterialSelect = (material: Material) => {
+    const existing = selectedMaterials.find(m => m.SKU === material.SKU);
+    if (existing) {
+      setSelectedMaterials(prev =>
+        prev.map(m =>
+          m.SKU === material.SKU
+            ? { ...m, quantidadeSelecionada: m.quantidadeSelecionada + 1 }
+            : m
+        )
+      );
+    } else {
+      setSelectedMaterials(prev => [
+        ...prev,
+        { ...material, quantidadeSelecionada: 1 }
+      ]);
+    }
+    
+    toast({
+      title: "Material adicionado",
+      description: `${material.Descrição} foi adicionado à lista`,
+    });
+  };
+
+  const updateQuantity = (sku: string, quantity: number) => {
+    if (quantity <= 0) {
+      setSelectedMaterials(prev => prev.filter(m => m.SKU !== sku));
+    } else {
+      setSelectedMaterials(prev =>
+        prev.map(m =>
+          m.SKU === sku ? { ...m, quantidadeSelecionada: quantity } : m
+        )
+      );
+    }
   };
 
   return (
@@ -236,12 +266,85 @@ const Campo = () => {
         </Card>
 
         {/* Seleção de Materiais */}
-        <div className="animate-slideUp">
-          <MaterialSelector
-            onMaterialsChange={setSelectedMaterials}
-            scriptUrl={SCRIPT_URL}
-          />
-        </div>
+        <Card className="animate-slideUp">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Package className="h-5 w-5" />
+              Selecionar Materiais
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {isError ? (
+              <div className="text-center py-8 text-destructive">
+                <Package className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                <p>Erro ao carregar materiais. Tente novamente.</p>
+              </div>
+            ) : (
+              <MaterialSearch
+                items={materials || []}
+                onSelect={handleMaterialSelect}
+                loading={isLoading}
+              />
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Materiais Selecionados */}
+        {selectedMaterials.length > 0 && (
+          <Card className="animate-slideUp">
+            <CardHeader>
+              <CardTitle>Materiais Selecionados ({selectedMaterials.length})</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {selectedMaterials.map((material) => (
+                  <div
+                    key={material.SKU}
+                    className="flex items-center justify-between p-3 border rounded-lg"
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Badge variant="secondary">{material.SKU}</Badge>
+                        <Badge variant={material.Categoria === 'Interno' ? 'default' : 'outline'}>
+                          {material.Categoria}
+                        </Badge>
+                      </div>
+                      <p className="font-medium text-sm">{material.Descrição}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Unidade: {material.Unidade}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => updateQuantity(material.SKU, material.quantidadeSelecionada - 1)}
+                      >
+                        <Minus className="h-4 w-4" />
+                      </Button>
+                      <Input
+                        type="number"
+                        value={material.quantidadeSelecionada}
+                        onChange={(e) => updateQuantity(material.SKU, parseInt(e.target.value) || 0)}
+                        className="w-20 text-center"
+                        min="0"
+                      />
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => updateQuantity(material.SKU, material.quantidadeSelecionada + 1)}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Ações */}
         <Card className="animate-slideUp">

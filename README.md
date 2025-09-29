@@ -1,73 +1,150 @@
-# Welcome to your Lovable project
+# Sheet Craft Builder
 
-## Project info
+Sistema para cadastro de materiais e obras para técnicos.
 
-**URL**: https://lovable.dev/projects/cc8f6eb9-71b8-4413-98fb-a44bac0d4fb3
+## 🚀 Tecnologias
 
-## How can I edit this code?
+- **Frontend**: React 18 + TypeScript + Vite
+- **UI**: shadcn/ui + Tailwind CSS
+- **Data Fetching**: TanStack Query (React Query)
+- **Backend**: Google Apps Script
+- **Testing**: Vitest + Testing Library
+- **Code Quality**: ESLint + Prettier + Husky
 
-There are several ways of editing your application.
+## 📦 Instalação
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/cc8f6eb9-71b8-4413-98fb-a44bac0d4fb3) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
+```bash
+# Clone o repositório
 git clone <YOUR_GIT_URL>
+cd sheet-craft-builder
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Instale as dependências
+npm install
 
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+# Configure as variáveis de ambiente
+cp .env.example .env
+# Edite o .env com sua URL do Google Apps Script
 ```
 
-**Edit a file directly in GitHub**
+## 🔧 Configuração
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Variáveis de Ambiente
 
-**Use GitHub Codespaces**
+Crie um arquivo `.env` baseado no `.env.example`:
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```bash
+VITE_API_BASE_URL=https://script.google.com/macros/s/SEU_SCRIPT_ID/exec
+```
 
-## What technologies are used for this project?
+### Google Apps Script
 
-This project is built with:
+O backend utiliza Google Apps Script com os seguintes endpoints:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- `GET ?action=getMaterials` - Lista todos os materiais
+- `POST action=saveObra` - Salva uma nova obra
 
-## How can I deploy this project?
+## 🏃‍♂️ Scripts
 
-Simply open [Lovable](https://lovable.dev/projects/cc8f6eb9-71b8-4413-98fb-a44bac0d4fb3) and click on Share -> Publish.
+```bash
+# Desenvolvimento
+npm run dev
 
-## Can I connect a custom domain to my Lovable project?
+# Build de produção
+npm run build
 
-Yes, you can!
+# Preview da build
+npm run preview
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+# Testes
+npm run test          # Executa todos os testes
+npm run test:watch    # Executa testes em modo watch
+npm run coverage      # Gera relatório de cobertura
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+# Code Quality
+npm run typecheck     # Verifica tipos TypeScript
+npm run lint          # Executa ESLint
+npm run format        # Formata código com Prettier
+```
+
+## 🎯 Funcionalidades
+
+### ✅ Implementado
+
+- **Busca Incremental de Materiais**: Campo de busca que filtra materiais por prefixo
+- **Filtros Avançados**: Por categoria (Interno/Externo) e disponibilidade
+- **Navegação por Teclado**: ↑/↓ para navegar, Enter para selecionar, Esc para fechar
+- **Acessibilidade**: ARIA labels, foco visível, navegação completa por teclado
+- **Responsividade**: Design mobile-first
+- **Validação**: Formulários com validação em tempo real
+- **Error Handling**: Tratamento robusto de erros de rede
+- **TypeScript**: Tipagem estrita com validação de ambiente
+
+### 🔄 Melhorias da Refatoração
+
+1. **Substituição dos botões de materiais** por campo de busca incremental
+2. **Infraestrutura de desenvolvimento** completa (ESLint, Prettier, testes, CI)
+3. **Tipagem TypeScript** estrita com validação de environment
+4. **HTTP client** com timeout e tratamento de erros
+5. **React Query** para cache e gerenciamento de estado
+6. **Testes automatizados** com Vitest
+7. **CI/CD** com GitHub Actions
+
+## 🏗️ Arquitetura
+
+```
+src/
+├── components/          # Componentes reutilizáveis
+│   ├── ui/             # Componentes base (shadcn)
+│   └── MaterialSearch/ # Busca de materiais
+├── hooks/              # Custom hooks
+├── lib/                # Utilitários e configurações
+├── pages/              # Páginas da aplicação
+├── services/           # Camada de dados/API
+├── types/              # Definições de tipos
+└── test/               # Configuração de testes
+```
+
+## 🎨 Design System
+
+O projeto utiliza um design system baseado em:
+- **Cores**: Tokens semânticos definidos no `index.css`
+- **Componentes**: shadcn/ui customizados
+- **Responsividade**: Mobile-first com Tailwind CSS
+- **Acessibilidade**: WCAG 2.1 Level AA
+
+## 🔄 CI/CD
+
+GitHub Actions executando:
+- ✅ TypeScript type checking
+- ✅ ESLint linting  
+- ✅ Tests com Vitest
+- ✅ Build de produção
+
+## 📱 Uso
+
+### Cadastro de Obra
+
+1. Acesse a página "Campo"
+2. Preencha os dados da obra (técnico, endereço, tipo)
+3. Use o campo de busca para encontrar materiais
+4. Ajuste as quantidades conforme necessário
+5. Salve a obra
+
+### Busca de Materiais
+
+- Digite qualquer parte do nome ou SKU do material
+- Use os filtros para refinar a busca
+- Navegue com as setas do teclado
+- Pressione Enter para selecionar
+
+## 🤝 Contribuição
+
+1. Fork o projeto
+2. Crie uma branch: `git checkout -b feature/nova-funcionalidade`
+3. Commit: `git commit -m 'feat: adiciona nova funcionalidade'`
+4. Push: `git push origin feature/nova-funcionalidade`
+5. Abra um Pull Request
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT.
