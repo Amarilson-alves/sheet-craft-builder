@@ -1,9 +1,18 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import routerBg from "@/assets/router-bg.png";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-4">
+    <div 
+      className="min-h-screen flex items-center justify-center p-4"
+      style={{
+        backgroundImage: `url(${routerBg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
       <div className="max-w-md w-full">
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 text-center shadow-strong">
           <div className="mb-6">
