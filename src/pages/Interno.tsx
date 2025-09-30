@@ -21,6 +21,9 @@ import {
   Package
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { MaterialsSearchModal } from "@/components/MaterialsSearchModal";
+import { BackButton } from "@/components/BackButton";
+import { exportObrasExcel } from "@/utils/excelExport";
 
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyYZqR0fcxnlulAEpZenLmpy1LksliyZ8V7KvVoFdYAO77CaVzONRH-eVMyxcf4QDgrTw/exec";
 
@@ -141,37 +144,20 @@ const Interno = () => {
       return;
     }
 
-    // Criar dados para CSV (que pode ser aberto como Excel)
-    const headers = ['Data', 'Técnico', 'Endereço', 'Número', 'Complemento', 'Tipo de Obra', 'Status', 'Materiais'];
-    const csvData = obras.map(obra => [
-      obra.Data,
-      obra.Técnico,
-      obra.Endereço,
-      obra.Número,
-      obra.Complemento,
-      obra.Tipo_Obra,
-      obra.Status,
-      obra.materiais.map(m => `${m.name} (${m.quantity} ${m.unit})`).join('; ')
-    ]);
-
-    const csvContent = [headers, ...csvData]
-      .map(row => row.map(cell => `"${cell}"`).join(','))
-      .join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `obras_${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    toast({
-      title: "Exportação concluída",
-      description: "Arquivo CSV baixado com sucesso",
-    });
+    try {
+      exportObrasExcel(obras);
+      toast({
+        title: "Exportação concluída",
+        description: "Arquivo Excel baixado com sucesso",
+      });
+    } catch (error) {
+      console.error('Erro ao exportar:', error);
+      toast({
+        variant: "destructive",
+        title: "Erro na exportação",
+        description: error instanceof Error ? error.message : "Não foi possível exportar o arquivo",
+      });
+    }
   };
 
   const addMaterial = async () => {
@@ -288,6 +274,10 @@ const Interno = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8">
+        <div className="mb-4">
+          <BackButton />
+        </div>
+
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="consultar" className="flex items-center gap-2">
@@ -448,9 +438,12 @@ const Interno = () => {
           <TabsContent value="materiais" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Package className="h-5 w-5" />
-                  Gerenciar Materiais
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Package className="h-5 w-5" />
+                    Gerenciar Materiais
+                  </div>
+                  <MaterialsSearchModal />
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">

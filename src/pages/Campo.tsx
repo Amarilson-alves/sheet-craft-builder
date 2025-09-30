@@ -12,6 +12,7 @@ import { ArrowLeft, Save, Eraser, Building, User, Package, Minus, Plus } from "l
 import { Link } from "react-router-dom";
 import { ENV } from "@/lib/env";
 import type { Material, SelectedMaterial } from "@/types/material";
+import { BackButton } from "@/components/BackButton";
 
 const Campo = () => {
   const [formData, setFormData] = useState({
@@ -178,6 +179,10 @@ const Campo = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8 space-y-8">
+        <div className="mb-4">
+          <BackButton />
+        </div>
+        
         {/* Dados da Obra */}
         <Card className="animate-fadeIn">
           <CardHeader>
