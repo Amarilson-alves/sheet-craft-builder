@@ -14,14 +14,25 @@ export async function getMaterials(): Promise<Material[]> {
 }
 
 export async function searchMaterials(query: string): Promise<Material[]> {
-  const url = `${ENV.VITE_API_BASE_URL}?action=searchMaterials&q=${encodeURIComponent(query)}&limit=50`;
-  const response = await http<{ materials?: Material[]; error?: string }>(url);
+  // Backend doesn't support searchMaterials action, so we get all and filter client-side
+  const allMaterials = await getMaterials();
   
-  if (response.error) {
-    throw new Error(response.error);
+  const normalizedQuery = query.trim().toLowerCase();
+  
+  if (!normalizedQuery) {
+    return [];
   }
   
-  return response.materials || [];
+  // Filter by SKU or Description (case-insensitive, contains match)
+  const filtered = allMaterials.filter((material) => {
+    const sku = (material.SKU || '').toLowerCase();
+    const desc = (material.Descrição || '').toLowerCase();
+    
+    return sku.includes(normalizedQuery) || desc.includes(normalizedQuery);
+  });
+  
+  // Limit to 50 results for performance
+  return filtered.slice(0, 50);
 }
 
 export async function updateMaterial(

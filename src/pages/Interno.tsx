@@ -253,17 +253,20 @@ const Interno = () => {
 
   const handleConsulta = () => {
     // Validar que pelo menos um campo está preenchido
-    if (!newMaterial.code && !newMaterial.name) {
+    const sku = newMaterial.code?.trim();
+    const desc = newMaterial.name?.trim();
+    
+    if (!sku && !desc) {
       toast({
         variant: "destructive",
         title: "Campos obrigatórios",
-        description: "Preencha pelo menos o SKU ou a Descrição para consultar",
+        description: "Informe SKU ou Descrição para consultar",
       });
       return;
     }
 
     // Montar query de busca priorizando SKU
-    const query = newMaterial.code || newMaterial.name;
+    const query = sku || desc;
     setSearchQuery(query);
     setSearchModalOpen(true);
   };
