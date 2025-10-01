@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import MaterialSearch from "@/components/MaterialSearch";
+import { MaterialsButtonGrid } from "@/components/MaterialsButtonGrid";
 import { useMaterials } from "@/hooks/useMaterials";
 import { ArrowLeft, Save, Eraser, Building, User, Package, Minus, Plus } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -285,8 +285,8 @@ const Campo = () => {
                 <p>Erro ao carregar materiais. Tente novamente.</p>
               </div>
             ) : (
-              <MaterialSearch
-                items={materials || []}
+              <MaterialsButtonGrid
+                materials={materials || []}
                 onSelect={handleMaterialSelect}
                 loading={isLoading}
               />

@@ -72,6 +72,8 @@ const Interno = () => {
     unit: '',
     category: 'Interno'
   });
+  const [searchModalOpen, setSearchModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -247,6 +249,23 @@ const Interno = () => {
       title: "Filtros limpos",
       description: "Todos os filtros foram removidos",
     });
+  };
+
+  const handleConsulta = () => {
+    // Validar que pelo menos um campo está preenchido
+    if (!newMaterial.code && !newMaterial.name) {
+      toast({
+        variant: "destructive",
+        title: "Campos obrigatórios",
+        description: "Preencha pelo menos o SKU ou a Descrição para consultar",
+      });
+      return;
+    }
+
+    // Montar query de busca priorizando SKU
+    const query = newMaterial.code || newMaterial.name;
+    setSearchQuery(query);
+    setSearchModalOpen(true);
   };
 
   return (
@@ -438,12 +457,9 @@ const Interno = () => {
           <TabsContent value="materiais" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Package className="h-5 w-5" />
-                    Gerenciar Materiais
-                  </div>
-                  <MaterialsSearchModal />
+                <CardTitle className="flex items-center gap-2">
+                  <Package className="h-5 w-5" />
+                  Gerenciar Materiais
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -491,67 +507,29 @@ const Interno = () => {
                       </Select>
                     </div>
                   </div>
-                  <Button onClick={addMaterial}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Adicionar Material
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button onClick={addMaterial}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Cadastrar Material
+                    </Button>
+                    <Button variant="outline" onClick={handleConsulta}>
+                      <Search className="h-4 w-4 mr-2" />
+                      Consulta
+                    </Button>
+                  </div>
                 </div>
-
-                {/* Lista de Materiais */}
-                {materials.length > 0 && (
-                  <div className="rounded-lg border">
-                    <div className="overflow-x-auto">
-                      <table className="w-full">
-                        <thead className="bg-muted">
-                          <tr>
-                            <th className="px-4 py-3 text-left font-medium">SKU</th>
-                            <th className="px-4 py-3 text-left font-medium">Descrição</th>
-                            <th className="px-4 py-3 text-left font-medium">Unidade</th>
-                            <th className="px-4 py-3 text-left font-medium">Estoque</th>
-                            <th className="px-4 py-3 text-left font-medium">Categoria</th>
-                            <th className="px-4 py-3 text-left font-medium">Ações</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {materials.map((material, index) => (
-                            <tr key={index} className="border-t hover:bg-muted/50">
-                              <td className="px-4 py-3 font-medium">{material.SKU}</td>
-                              <td className="px-4 py-3">{material.Descrição}</td>
-                              <td className="px-4 py-3">{material.Unidade}</td>
-                              <td className="px-4 py-3">{material.Qtdd_Depósito}</td>
-                              <td className="px-4 py-3">
-                                <Badge variant={material.Categoria === 'Interno' ? 'default' : 'outline'}>
-                                  {material.Categoria}
-                                </Badge>
-                              </td>
-                              <td className="px-4 py-3">
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => deleteMaterial(material.SKU)}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                )}
-
-                {materials.length === 0 && (
-                  <div className="text-center py-12 text-muted-foreground">
-                    <Package className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <h3 className="text-lg font-medium mb-2">Nenhum material cadastrado</h3>
-                    <p>Adicione materiais usando o formulário acima.</p>
-                  </div>
-                )}
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Modal de Consulta (fora das tabs) */}
+        <MaterialsSearchModal
+          open={searchModalOpen}
+          onOpenChange={setSearchModalOpen}
+          initialQuery={searchQuery}
+          autoSearch={true}
+        />
       </main>
     </div>
   );

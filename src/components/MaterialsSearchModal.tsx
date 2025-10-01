@@ -21,11 +21,21 @@ import { useDebounce } from '@/hooks/useDebounce';
 
 interface MaterialsSearchModalProps {
   trigger?: React.ReactNode;
+  initialQuery?: string;
+  autoSearch?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function MaterialsSearchModal({ trigger }: MaterialsSearchModalProps) {
-  const [open, setOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+export function MaterialsSearchModal({ 
+  trigger, 
+  initialQuery = '', 
+  autoSearch = false,
+  open: controlledOpen,
+  onOpenChange: externalOnOpenChange 
+}: MaterialsSearchModalProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [editingMaterial, setEditingMaterial] = useState<Material | null>(null);
   const [incrementingMaterial, setIncrementingMaterial] = useState<Material | null>(null);
   const [deletingMaterial, setDeletingMaterial] = useState<Material | null>(null);
@@ -33,6 +43,24 @@ export function MaterialsSearchModal({ trigger }: MaterialsSearchModalProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const debouncedQuery = useDebounce(searchQuery, 250);
+
+  // Controle do estado (controlado ou não controlado)
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = (newOpen: boolean) => {
+    if (controlledOpen === undefined) {
+      setInternalOpen(newOpen);
+    }
+    if (externalOnOpenChange) {
+      externalOnOpenChange(newOpen);
+    }
+  };
+
+  // Sincronizar com valor inicial
+  useEffect(() => {
+    if (initialQuery && open) {
+      setSearchQuery(initialQuery);
+    }
+  }, [initialQuery, open]);
 
   // Search materials query
   const {
@@ -50,15 +78,18 @@ export function MaterialsSearchModal({ trigger }: MaterialsSearchModalProps) {
   const hasResults = materials.length > 0;
   const hasQuery = debouncedQuery.trim().length > 0;
 
-  // Handle modal close
-  const handleClose = () => {
-    setOpen(false);
-    setSearchQuery('');
+  // Handle modal open/close
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+    if (!newOpen) {
+      // Reset após fechar
+      setTimeout(() => setSearchQuery(''), 300);
+    }
   };
 
   return (
     <>
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogTrigger asChild>
           {trigger || (
             <Button variant="outline" className="gap-2">
