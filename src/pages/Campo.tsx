@@ -8,11 +8,13 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { MaterialsButtonGrid } from "@/components/MaterialsButtonGrid";
 import { useMaterials } from "@/hooks/useMaterials";
-import { ArrowLeft, Save, Eraser, Building, User, Package, Minus, Plus } from "lucide-react";
+import { ArrowLeft, Save, Eraser, Building, User, Package, Minus, Plus, Filter } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ENV } from "@/lib/env";
 import type { Material, SelectedMaterial } from "@/types/material";
 import { BackButton } from "@/components/BackButton";
+
+type FilterType = 'none' | 'interno' | 'externo' | 'todos';
 
 const Campo = () => {
   const [formData, setFormData] = useState({
@@ -25,9 +27,17 @@ const Campo = () => {
     obs: ''
   });
   const [selectedMaterials, setSelectedMaterials] = useState<SelectedMaterial[]>([]);
+  const [filter, setFilter] = useState<FilterType>('none');
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
   const { data: materials, isLoading, isError } = useMaterials();
+
+  // Filtrar materiais com base no filtro selecionado
+  const filteredMaterials = React.useMemo(() => {
+    if (filter === 'none' || !materials) return [];
+    if (filter === 'todos') return materials;
+    return materials.filter(m => m.Categoria.toLowerCase() === filter);
+  }, [materials, filter]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -179,10 +189,6 @@ const Campo = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8 space-y-8">
-        <div className="mb-4">
-          <BackButton />
-        </div>
-        
         {/* Dados da Obra */}
         <Card className="animate-fadeIn">
           <CardHeader>
@@ -279,14 +285,51 @@ const Campo = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Filtros */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm font-medium">Filtrar por categoria:</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant={filter === 'interno' ? 'default' : 'outline'}
+                  onClick={() => setFilter('interno')}
+                  aria-pressed={filter === 'interno'}
+                >
+                  Interno
+                </Button>
+                <Button
+                  variant={filter === 'externo' ? 'default' : 'outline'}
+                  onClick={() => setFilter('externo')}
+                  aria-pressed={filter === 'externo'}
+                >
+                  Externo
+                </Button>
+                <Button
+                  variant={filter === 'todos' ? 'default' : 'outline'}
+                  onClick={() => setFilter('todos')}
+                  aria-pressed={filter === 'todos'}
+                >
+                  Todos
+                </Button>
+              </div>
+            </div>
+
+            {/* Materiais */}
             {isError ? (
               <div className="text-center py-8 text-destructive">
                 <Package className="h-12 w-12 mx-auto mb-2 opacity-50" />
                 <p>Erro ao carregar materiais. Tente novamente.</p>
               </div>
+            ) : filter === 'none' ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Filter className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>Selecione um filtro para visualizar materiais (Interno, Externo ou Todos)</p>
+              </div>
             ) : (
               <MaterialsButtonGrid
-                materials={materials || []}
+                materials={filteredMaterials}
                 onSelect={handleMaterialSelect}
                 loading={isLoading}
               />

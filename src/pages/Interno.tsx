@@ -296,10 +296,6 @@ const Interno = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <div className="mb-4">
-          <BackButton />
-        </div>
-
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="consultar" className="flex items-center gap-2">
