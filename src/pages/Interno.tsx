@@ -22,8 +22,7 @@ import {
 import { MaterialsSearchModal } from "@/components/MaterialsSearchModal";
 import { BackButton } from "@/components/BackButton";
 import { exportObrasExcel } from "@/utils/excelExport";
-
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyYZqR0fcxnlulAEpZenLmpy1LksliyZ8V7KvVoFdYAO77CaVzONRH-eVMyxcf4QDgrTw/exec";
+import { gasGet, gasPost } from "@/lib/gasClient";
 
 interface Obra {
   'ID Obra': string;
@@ -85,13 +84,16 @@ const Interno = () => {
   const loadObras = async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams({
+      const params: Record<string, string> = {
         action: 'getObras',
-        ...Object.fromEntries(Object.entries(filters).filter(([key, v]) => v && !(key === 'tipoObra' && v === 'todos')))
-      });
+        ...Object.fromEntries(
+          Object.entries(filters)
+            .filter(([key, v]) => v && !(key === 'tipoObra' && v === 'todos'))
+            .map(([k, v]) => [k, String(v)])
+        )
+      };
 
-      const response = await fetch(`${SCRIPT_URL}?${params}`);
-      const data = await response.json();
+      const data = await gasGet(params);
 
       if (data.error) {
         throw new Error(data.error);
@@ -116,8 +118,7 @@ const Interno = () => {
 
   const loadMaterials = async () => {
     try {
-      const response = await fetch(`${SCRIPT_URL}?action=getMaterials`);
-      const data = await response.json();
+      const data = await gasGet({ action: 'getMaterials' });
 
       if (data.error) {
         throw new Error(data.error);
@@ -171,16 +172,12 @@ const Interno = () => {
     }
 
     try {
-      const params = new URLSearchParams({
-        action: 'addMaterial',
+      const result = await gasPost('addMaterial', {
         code: newMaterial.code,
         name: newMaterial.name,
         unit: newMaterial.unit,
         category: newMaterial.category
       });
-
-      const response = await fetch(`${SCRIPT_URL}?${params}`, { method: 'POST' });
-      const result = await response.json();
 
       if (result.error) {
         throw new Error(result.error);
@@ -205,13 +202,7 @@ const Interno = () => {
 
   const deleteMaterial = async (code: string) => {
     try {
-      const params = new URLSearchParams({
-        action: 'deleteMaterial',
-        code: code
-      });
-
-      const response = await fetch(`${SCRIPT_URL}?${params}`, { method: 'POST' });
-      const result = await response.json();
+      const result = await gasPost('deleteMaterial', { sku: code });
 
       if (result.error) {
         throw new Error(result.error);

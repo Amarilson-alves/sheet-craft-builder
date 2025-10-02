@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { MaterialsButtonGrid } from "@/components/MaterialsButtonGrid";
 import { useMaterials } from "@/hooks/useMaterials";
 import { Save, Eraser, Building, User, Package, Minus, Plus, Filter } from "lucide-react";
-import { ENV } from "@/lib/env";
+import { gasPost } from "@/lib/gasClient";
 import type { Material, SelectedMaterial } from "@/types/material";
 import { BackButton } from "@/components/BackButton";
 import { sanitizeObject, sanitizeNumber } from "@/utils/sanitize";
@@ -102,18 +102,7 @@ const Campo = () => {
         }))
       });
 
-      const response = await fetch(ENV.VITE_API_BASE_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'saveObra',
-          data: sanitizedData
-        })
-      });
-
-      const result = await response.json();
+      const result = await gasPost('saveObra', { data: sanitizedData });
 
       if (result.error) {
         throw new Error(result.error);

@@ -1,5 +1,4 @@
-import { ENV } from "@/lib/env";
-import { http } from "@/lib/http";
+import { gasGet, gasPost } from "@/lib/gasClient";
 import type { Material } from "@/types/material";
 import { queryLimiter } from "@/utils/rateLimit";
 
@@ -8,8 +7,7 @@ export async function getMaterials(): Promise<Material[]> {
     throw new Error('Muitas requisições. Aguarde um momento.');
   }
   
-  const url = `${ENV.VITE_API_BASE_URL}?action=getMaterials`;
-  const response = await http<{ materials?: Material[]; error?: string }>(url);
+  const response = await gasGet({ action: 'getMaterials' });
   
   if (response.error) {
     throw new Error(response.error);
@@ -44,12 +42,7 @@ export async function updateMaterial(
   sku: string, 
   data: { quantidade: number; descricao: string; unidade: string }
 ): Promise<{ ok: boolean }> {
-  const url = `${ENV.VITE_API_BASE_URL}?action=updateMaterial`;
-  const response = await http<{ ok?: boolean; error?: string }>(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ sku, ...data }),
-  });
+  const response = await gasPost('updateMaterial', { sku, ...data });
   
   if (response.error) {
     throw new Error(response.error);
@@ -63,12 +56,7 @@ export async function incrementMaterial(
   delta: number, 
   motivo?: string
 ): Promise<{ ok: boolean; newQty: number }> {
-  const url = `${ENV.VITE_API_BASE_URL}?action=incrementMaterial`;
-  const response = await http<{ ok?: boolean; newQty?: number; error?: string }>(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ sku, delta, motivo }),
-  });
+  const response = await gasPost('incrementMaterial', { sku, delta, motivo });
   
   if (response.error) {
     throw new Error(response.error);
@@ -78,12 +66,7 @@ export async function incrementMaterial(
 }
 
 export async function deleteMaterial(sku: string, motivo?: string): Promise<{ ok: boolean }> {
-  const url = `${ENV.VITE_API_BASE_URL}?action=deleteMaterial`;
-  const response = await http<{ ok?: boolean; error?: string }>(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ sku, motivo }),
-  });
+  const response = await gasPost('deleteMaterial', { sku, motivo });
   
   if (response.error) {
     throw new Error(response.error);
