@@ -173,7 +173,7 @@ const Campo = () => {
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <BackButton fallbackPath="/" />
+              <BackButton fallbackPath="/" className="bg-primary-foreground/10 text-primary-foreground border-primary-foreground/20 hover:bg-primary-foreground/20" />
               <div>
                 <h1 className="text-2xl font-bold flex items-center gap-2">
                   <Building className="h-6 w-6" />
