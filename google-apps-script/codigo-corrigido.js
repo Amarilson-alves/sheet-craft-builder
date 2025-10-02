@@ -8,26 +8,31 @@ const SHEET_NAMES = {
   MATERIAIS_UTILIZADOS: 'Materiais Utilizados'
 };
 
+// Responder às preflight requests (CORS)
+function doOptions(e) {
+  return createCORSResponse({});
+}
+
 function doGet(e) {
   const action = e.parameter.action;
   
   try {
     switch(action) {
       case 'getMaterials':
-        return createResponse(getMaterials(e));
+        return createCORSResponse(getMaterials(e));
       case 'searchMaterials':
-        return createResponse(searchMaterials(e));
+        return createCORSResponse(searchMaterials(e));
       case 'getObras':
-        return createResponse(getObras(e));
+        return createCORSResponse(getObras(e));
       case 'getMaterialsByCategory':
-        return createResponse(getMaterialsByCategory(e));
+        return createCORSResponse(getMaterialsByCategory(e));
       case 'test':
-        return createResponse({message: "Conexão bem-sucedida", status: "OK"});
+        return createCORSResponse({message: "Conexão bem-sucedida", status: "OK"});
       default:
-        return createResponse({error: 'Ação não reconhecida'});
+        return createCORSResponse({error: 'Ação não reconhecida'});
     }
   } catch (error) {
-    return createResponse({error: error.message});
+    return createCORSResponse({error: error.message});
   }
 }
 
@@ -48,25 +53,25 @@ function doPost(e) {
         if (body && body.data) {
           e.parameter = Object.assign({}, e.parameter, { payload: JSON.stringify(body.data) });
         }
-        return createResponse(saveObra(e));
+        return createCORSResponse(saveObra(e));
       
       case 'addMaterial':
-        return createResponse(addMaterial(body));
+        return createCORSResponse(addMaterial(body));
       
       case 'updateMaterial':
-        return createResponse(updateMaterial(body));
+        return createCORSResponse(updateMaterial(body));
       
       case 'incrementMaterial':
-        return createResponse(incrementMaterial(body));
+        return createCORSResponse(incrementMaterial(body));
       
       case 'deleteMaterial':
-        return createResponse(deleteMaterial(body));
+        return createCORSResponse(deleteMaterial(body));
       
       default:
-        return createResponse({ error: 'Ação POST não reconhecida: ' + action });
+        return createCORSResponse({ error: 'Ação POST não reconhecida: ' + action });
     }
   } catch (error) {
-    return createResponse({ error: error.message, stack: error.stack });
+    return createCORSResponse({ error: error.message, stack: error.stack });
   }
 }
 
@@ -507,7 +512,17 @@ function getSheet(sheetName) {
   return sheet;
 }
 
-function createResponse(data) {
+// Função para criar resposta com headers CORS
+function createCORSResponse(data) {
   return ContentService.createTextOutput(JSON.stringify(data))
-    .setMimeType(ContentService.MimeType.JSON);
+    .setMimeType(ContentService.MimeType.JSON)
+    .setHeader('Access-Control-Allow-Origin', '*')
+    .setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+    .setHeader('Access-Control-Allow-Headers', 'Content-Type')
+    .setHeader('Access-Control-Max-Age', '3600');
+}
+
+// Função legada para compatibilidade
+function createResponse(data) {
+  return createCORSResponse(data);
 }
