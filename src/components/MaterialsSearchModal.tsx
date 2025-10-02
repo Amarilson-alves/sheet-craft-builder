@@ -90,14 +90,17 @@ export function MaterialsSearchModal({
   return (
     <>
       <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogTrigger asChild>
-          {trigger || (
-            <Button variant="outline" className="gap-2">
-              <Search className="h-4 w-4" />
-              Consulta
-            </Button>
-          )}
-        </DialogTrigger>
+        {/* Só renderiza trigger se não for controlado externamente */}
+        {controlledOpen === undefined && (
+          <DialogTrigger asChild>
+            {trigger || (
+              <Button variant="outline" className="gap-2">
+                <Search className="h-4 w-4" />
+                Consulta
+              </Button>
+            )}
+          </DialogTrigger>
+        )}
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
           <DialogHeader>
             <DialogTitle>Consultar Materiais</DialogTitle>
