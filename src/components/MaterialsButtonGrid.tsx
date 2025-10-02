@@ -53,18 +53,13 @@ export function MaterialsButtonGrid({ materials, onSelect, loading, selectedMate
               return (
                 <Button
                   key={material.SKU}
-                  variant="outline"
-                  className={cn(
-                    "h-auto py-3 px-4 flex flex-col items-start justify-start text-left relative",
-                    selected
-                      ? "bg-accent/10 border-accent hover:bg-accent/15 shadow-sm ring-2 ring-accent/20"
-                      : "hover:bg-accent/5 hover:border-accent"
-                  )}
+                  variant={selected ? 'default' : 'outline'}
+                  className="h-auto py-3 px-4 flex flex-col items-start justify-start text-left relative"
                   onClick={() => onSelect(material)}
                   aria-pressed={selected}
                 >
                   {selected && (
-                    <Check className="absolute top-2 right-2 h-4 w-4 text-accent" />
+                    <Check className="absolute top-2 right-2 h-4 w-4 text-primary-foreground" />
                   )}
                   <div className="font-medium text-sm mb-1 pr-6">{material.Descrição}</div>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -102,18 +97,13 @@ export function MaterialsButtonGrid({ materials, onSelect, loading, selectedMate
               return (
                 <Button
                   key={material.SKU}
-                  variant="outline"
-                  className={cn(
-                    "h-auto py-3 px-4 flex flex-col items-start justify-start text-left relative",
-                    selected
-                      ? "bg-accent/10 border-accent hover:bg-accent/15 shadow-sm ring-2 ring-accent/20"
-                      : "hover:bg-accent/5 hover:border-accent"
-                  )}
+                  variant={selected ? 'default' : 'outline'}
+                  className="h-auto py-3 px-4 flex flex-col items-start justify-start text-left relative"
                   onClick={() => onSelect(material)}
                   aria-pressed={selected}
                 >
                   {selected && (
-                    <Check className="absolute top-2 right-2 h-4 w-4 text-accent" />
+                    <Check className="absolute top-2 right-2 h-4 w-4 text-primary-foreground" />
                   )}
                   <div className="font-medium text-sm mb-1 pr-6">{material.Descrição}</div>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
