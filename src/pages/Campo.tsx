@@ -8,8 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { MaterialsButtonGrid } from "@/components/MaterialsButtonGrid";
 import { useMaterials } from "@/hooks/useMaterials";
-import { ArrowLeft, Save, Eraser, Building, User, Package, Minus, Plus, Filter } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Save, Eraser, Building, User, Package, Minus, Plus, Filter } from "lucide-react";
 import { ENV } from "@/lib/env";
 import type { Material, SelectedMaterial } from "@/types/material";
 import { BackButton } from "@/components/BackButton";
@@ -23,6 +22,7 @@ const Campo = () => {
     endereco: '',
     numero: '',
     complemento: '',
+    uf: '',
     tipoObra: '',
     obs: ''
   });
@@ -44,11 +44,11 @@ const Campo = () => {
   };
 
   const handleSave = async () => {
-    if (!formData.tecnico || !formData.endereco || !formData.numero || !formData.tipoObra) {
+    if (!formData.tecnico || !formData.endereco || !formData.numero || !formData.uf || !formData.tipoObra) {
       toast({
         variant: "destructive",
         title: "Campos obrigatórios",
-        description: "Preencha todos os campos obrigatórios",
+        description: "Preencha todos os campos obrigatórios (incluindo UF)",
       });
       return;
     }
@@ -119,10 +119,12 @@ const Campo = () => {
       endereco: '',
       numero: '',
       complemento: '',
+      uf: '',
       tipoObra: '',
       obs: ''
     });
     setSelectedMaterials([]);
+    setFilter('none');
     toast({
       title: "Formulário limpo",
       description: "Todos os dados foram removidos",
@@ -171,11 +173,7 @@ const Campo = () => {
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <Link to="/">
-                <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10">
-                  <ArrowLeft className="h-5 w-5" />
-                </Button>
-              </Link>
+              <BackButton fallbackPath="/" className="text-primary-foreground border-primary-foreground/20 hover:bg-primary-foreground/10" />
               <div>
                 <h1 className="text-2xl font-bold flex items-center gap-2">
                   <Building className="h-6 w-6" />
@@ -219,7 +217,7 @@ const Campo = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="space-y-2 md:col-span-2">
                 <Label htmlFor="endereco">Endereço *</Label>
                 <Input
@@ -228,6 +226,20 @@ const Campo = () => {
                   value={formData.endereco}
                   onChange={(e) => handleInputChange('endereco', e.target.value)}
                 />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="uf">UF *</Label>
+                <Select value={formData.uf} onValueChange={(value) => handleInputChange('uf', value)}>
+                  <SelectTrigger id="uf" aria-label="UF">
+                    <SelectValue placeholder="UF" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="PR">PR</SelectItem>
+                    <SelectItem value="PRI">PRI</SelectItem>
+                    <SelectItem value="SC">SC</SelectItem>
+                    <SelectItem value="RS">RS</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="numero">Número *</Label>
@@ -332,6 +344,7 @@ const Campo = () => {
                 materials={filteredMaterials}
                 onSelect={handleMaterialSelect}
                 loading={isLoading}
+                selectedMaterials={selectedMaterials}
               />
             )}
           </CardContent>

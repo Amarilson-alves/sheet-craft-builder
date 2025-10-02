@@ -8,7 +8,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { 
-  ArrowLeft, 
   Search, 
   Download, 
   Trash2, 
@@ -20,7 +19,6 @@ import {
   Building,
   Package
 } from "lucide-react";
-import { Link } from "react-router-dom";
 import { MaterialsSearchModal } from "@/components/MaterialsSearchModal";
 import { BackButton } from "@/components/BackButton";
 import { exportObrasExcel } from "@/utils/excelExport";
@@ -278,11 +276,7 @@ const Interno = () => {
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <Link to="/">
-                <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10">
-                  <ArrowLeft className="h-5 w-5" />
-                </Button>
-              </Link>
+              <BackButton fallbackPath="/" className="text-primary-foreground border-primary-foreground/20 hover:bg-primary-foreground/10" />
               <div>
                 <h1 className="text-2xl font-bold flex items-center gap-2">
                   <Settings className="h-6 w-6" />
