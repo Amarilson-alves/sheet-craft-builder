@@ -8,16 +8,11 @@ interface BackButtonProps {
   className?: string;
 }
 
-export function BackButton({ fallbackPath = '/menu', className = '' }: BackButtonProps) {
+export function BackButton({ fallbackPath = '/', className = '' }: BackButtonProps) {
   const navigate = useNavigate();
 
   const handleBack = () => {
-    // Try to go back in history, fallback to menu if no history
-    if (window.history.length > 1) {
-      navigate(-1);
-    } else {
-      navigate(fallbackPath);
-    }
+    navigate(fallbackPath);
   };
 
   return (
