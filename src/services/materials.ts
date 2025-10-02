@@ -1,8 +1,13 @@
 import { ENV } from "@/lib/env";
 import { http } from "@/lib/http";
 import type { Material } from "@/types/material";
+import { queryLimiter } from "@/utils/rateLimit";
 
 export async function getMaterials(): Promise<Material[]> {
+  if (!queryLimiter.isAllowed('getMaterials')) {
+    throw new Error('Muitas requisições. Aguarde um momento.');
+  }
+  
   const url = `${ENV.VITE_API_BASE_URL}?action=getMaterials`;
   const response = await http<{ materials?: Material[]; error?: string }>(url);
   

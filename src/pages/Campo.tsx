@@ -12,6 +12,9 @@ import { Save, Eraser, Building, User, Package, Minus, Plus, Filter } from "luci
 import { ENV } from "@/lib/env";
 import type { Material, SelectedMaterial } from "@/types/material";
 import { BackButton } from "@/components/BackButton";
+import { sanitizeObject, sanitizeNumber } from "@/utils/sanitize";
+import { saveObraLimiter } from "@/utils/rateLimit";
+import { validators, validateForm } from "@/utils/validators";
 
 type FilterType = 'none' | 'interno' | 'externo' | 'todos';
 
@@ -44,11 +47,24 @@ const Campo = () => {
   };
 
   const handleSave = async () => {
-    if (!formData.tecnico || !formData.endereco || !formData.numero || !formData.uf || !formData.tipoObra) {
+    // Validação com validators
+    const { isValid, errors } = validateForm(formData, {
+      tecnico: [validators.required, validators.minLength(3), validators.maxLength(100)],
+      endereco: [validators.required, validators.maxLength(200)],
+      numero: [validators.required, validators.maxLength(10)],
+      uf: [validators.required],
+      tipoObra: [validators.required],
+      idObra: [validators.maxLength(50)],
+      complemento: [validators.maxLength(100)],
+      obs: [validators.maxLength(500)],
+    });
+
+    if (!isValid) {
+      const firstError = Object.values(errors)[0];
       toast({
         variant: "destructive",
-        title: "Campos obrigatórios",
-        description: "Preencha todos os campos obrigatórios (incluindo UF)",
+        title: "Campos inválidos",
+        description: firstError || "Verifique os campos obrigatórios",
       });
       return;
     }
@@ -62,18 +78,29 @@ const Campo = () => {
       return;
     }
 
+    // Rate limiting
+    if (!saveObraLimiter.isAllowed('saveObra')) {
+      toast({
+        variant: "destructive",
+        title: "Muitas tentativas",
+        description: "Aguarde um momento antes de tentar novamente",
+      });
+      return;
+    }
+
     setSaving(true);
 
     try {
-      const payload = {
+      // Sanitizar dados antes de enviar
+      const sanitizedData = sanitizeObject({
         ...formData,
         materiais: selectedMaterials.map(m => ({
           code: m.SKU,
           name: m.Descrição,
           unit: m.Unidade,
-          quantity: m.quantidadeSelecionada
+          quantity: sanitizeNumber(m.quantidadeSelecionada)
         }))
-      };
+      });
 
       const response = await fetch(ENV.VITE_API_BASE_URL, {
         method: 'POST',
@@ -82,7 +109,7 @@ const Campo = () => {
         },
         body: JSON.stringify({
           action: 'saveObra',
-          data: payload
+          data: sanitizedData
         })
       });
 
@@ -155,12 +182,14 @@ const Campo = () => {
   };
 
   const updateQuantity = (sku: string, quantity: number) => {
-    if (quantity <= 0) {
+    const sanitizedQty = sanitizeNumber(quantity);
+    
+    if (sanitizedQty <= 0) {
       setSelectedMaterials(prev => prev.filter(m => m.SKU !== sku));
     } else {
       setSelectedMaterials(prev =>
         prev.map(m =>
-          m.SKU === sku ? { ...m, quantidadeSelecionada: quantity } : m
+          m.SKU === sku ? { ...m, quantidadeSelecionada: sanitizedQty } : m
         )
       );
     }
