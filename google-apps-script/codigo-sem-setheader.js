@@ -115,7 +115,7 @@ function getMaterials(e) {
       return item;
     });
 
-    return { data: results, meta: { count: results.length } };
+    return { ok: true, materials: results, data: results, meta: { count: results.length } };
   } catch (err) {
     return { error: err.message, stack: err.stack };
   }
@@ -177,25 +177,110 @@ function searchMaterials(e) {
 }
 
 /**
- * Busca todas as obras da planilha
+ * Busca todas as obras da planilha COM os materiais utilizados
  */
 function getObras(e) {
   try {
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-    const sheet = ss.getSheetByName(SHEET_NAMES.obras);
-    if (!sheet) throw new Error('Sheet não encontrada: ' + SHEET_NAMES.obras);
+    const sheetObras = ss.getSheetByName(SHEET_NAMES.obras);
+    const sheetMateriais = ss.getSheetByName(SHEET_NAMES.materiaisUtilizados);
+    
+    if (!sheetObras) throw new Error('Sheet não encontrada: ' + SHEET_NAMES.obras);
+    if (!sheetMateriais) throw new Error('Sheet não encontrada: ' + SHEET_NAMES.materiaisUtilizados);
 
-    const data = sheet.getDataRange().getValues();
-    const header = data[0];
-    const values = data.slice(1);
+    // Buscar obras
+    const dataObras = sheetObras.getDataRange().getValues();
+    const headerObras = dataObras[0];
+    const valuesObras = dataObras.slice(1);
 
-    const results = values.map(row => {
-      const item = {};
-      header.forEach((col, i) => item[col] = row[i]);
-      return item;
+    // Buscar materiais utilizados
+    const dataMateriais = sheetMateriais.getDataRange().getValues();
+    const headerMateriais = dataMateriais[0];
+    const valuesMateriais = dataMateriais.slice(1);
+
+    // Aplicar filtros se fornecidos
+    let filteredObras = valuesObras;
+    
+    if (e && e.parameter) {
+      const filters = e.parameter;
+      
+      filteredObras = valuesObras.filter(row => {
+        const obraObj = {};
+        headerObras.forEach((col, i) => obraObj[col] = row[i]);
+        
+        // Filtro por endereço
+        if (filters.endereco && !String(obraObj.endereco || '').toLowerCase().includes(filters.endereco.toLowerCase())) {
+          return false;
+        }
+        
+        // Filtro por técnico
+        if (filters.tecnico && !String(obraObj.tecnico || '').toLowerCase().includes(filters.tecnico.toLowerCase())) {
+          return false;
+        }
+        
+        // Filtro por tipo de obra
+        if (filters.tipoObra && filters.tipoObra !== 'todos' && obraObj.Tipo_obra !== filters.tipoObra) {
+          return false;
+        }
+        
+        // Filtro por data específica
+        if (filters.data) {
+          const obraDate = new Date(obraObj.data);
+          const filterDate = new Date(filters.data);
+          if (obraDate.toDateString() !== filterDate.toDateString()) {
+            return false;
+          }
+        }
+        
+        // Filtro por período (dateFrom e dateTo)
+        if (filters.dateFrom || filters.dateTo) {
+          const obraDate = new Date(obraObj.data);
+          
+          if (filters.dateFrom) {
+            const fromDate = new Date(filters.dateFrom);
+            if (obraDate < fromDate) return false;
+          }
+          
+          if (filters.dateTo) {
+            const toDate = new Date(filters.dateTo);
+            toDate.setHours(23, 59, 59, 999); // Incluir todo o dia
+            if (obraDate > toDate) return false;
+          }
+        }
+        
+        return true;
+      });
+    }
+
+    // Montar resultado com materiais
+    const results = filteredObras.map(row => {
+      const obra = {};
+      headerObras.forEach((col, i) => obra[col] = row[i]);
+      
+      // Buscar materiais desta obra
+      const obraId = obra.obra_id;
+      const materiaisObra = valuesMateriais
+        .filter(matRow => {
+          const matObj = {};
+          headerMateriais.forEach((col, i) => matObj[col] = matRow[i]);
+          return matObj.obra_id === obraId;
+        })
+        .map(matRow => {
+          const mat = {};
+          headerMateriais.forEach((col, i) => mat[col] = matRow[i]);
+          return {
+            code: mat.SKU || mat.sku || mat.code || '',
+            name: mat.Descrição || mat.descricao || mat.name || '',
+            unit: mat.Unidade || mat.unidade || mat.unit || '',
+            quantity: Number(mat.Quantidade || mat.quantidade || mat.quantity || 0)
+          };
+        });
+      
+      obra.materiais = materiaisObra;
+      return obra;
     });
 
-    return { data: results, meta: { count: results.length } };
+    return { ok: true, obras: results, meta: { count: results.length } };
   } catch (err) {
     return { error: err.message, stack: err.stack };
   }
