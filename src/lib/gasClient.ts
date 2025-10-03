@@ -1,11 +1,11 @@
-// Proxy via Edge Function (resolve CORS + erro do GAS)
-const PROXY_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/gas-proxy`;
+// URL do Google Apps Script Web App
+const GAS_URL = "https://script.google.com/macros/s/AKfycbxy6l5l4-DRJ_6H1zbnNu4iyFpNhW9LV0lCd-Jq1Xjb6D1VRLFm3HYphWvXK2iZ2yOQ/exec";
 
 /**
  * Wrapper para chamadas GET ao Google Apps Script
  */
 export async function gasGet(params: Record<string, string>) {
-  const url = new URL(PROXY_URL);
+  const url = new URL(GAS_URL);
   Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
   
   const res = await fetch(url.toString(), {
@@ -24,7 +24,7 @@ export async function gasGet(params: Record<string, string>) {
  * Wrapper para chamadas POST ao Google Apps Script
  */
 export async function gasPost(action: string, body: any) {
-  const url = new URL(PROXY_URL);
+  const url = new URL(GAS_URL);
   url.searchParams.set('action', action);
   
   const res = await fetch(url.toString(), {
