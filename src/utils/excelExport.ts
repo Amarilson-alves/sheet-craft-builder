@@ -1,16 +1,17 @@
 import * as XLSX from 'xlsx';
 
 interface ObraExport {
-  'ID Obra': string;
-  'Técnico': string;
-  'Endereço': string;
-  'Número': string;
-  'Complemento': string;
-  'Tipo_Obra': string;
-  'Observacoes': string;
-  'Data': string;
-  'Status': string;
-  materiais: Array<{
+  obra_id: string | number;
+  tecnico: string;
+  uf: string;
+  endereco: string;
+  numero: number;
+  complemento: string;
+  Tipo_obra: string;
+  obs: string;
+  data: string;
+  status: string;
+  materiais?: Array<{
     code: string;
     name: string;
     unit: string;
@@ -49,30 +50,32 @@ export function exportObrasExcel(obras: ObraExport[]): void {
   const materialsRows: MaterialRow[] = [];
   
   obras.forEach((obra) => {
-    obra.materiais.forEach((material) => {
-      materialsRows.push({
-        obra_id: obra['ID Obra'],
-        cidade: obra.Endereço,
-        UF: '', // TODO: extrair UF se disponível
-        tecnico: obra.Técnico,
-        data: formatDate(obra.Data),
-        status: obra.Status,
-        SKU: material.code,
-        Descrição: material.name,
-        Unidade: material.unit,
-        Quantidade: material.quantity,
-        obs: obra.Observacoes || '',
+    if (obra.materiais && obra.materiais.length > 0) {
+      obra.materiais.forEach((material) => {
+        materialsRows.push({
+          obra_id: String(obra.obra_id),
+          cidade: obra.endereco,
+          UF: obra.uf || '',
+          tecnico: obra.tecnico,
+          data: formatDate(obra.data),
+          status: obra.status,
+          SKU: material.code,
+          Descrição: material.name,
+          Unidade: material.unit,
+          Quantidade: material.quantity,
+          obs: obra.obs || '',
+        });
       });
-    });
+    }
   });
 
   // Preparar dados para a aba "Resumo por Obra"
   const resumoRows: ResumoRow[] = obras.map((obra) => ({
-    obra_id: obra['ID Obra'],
-    itens_distintos: new Set(obra.materiais.map(m => m.code)).size,
-    materiais_total: obra.materiais.reduce((sum, m) => sum + m.quantity, 0),
-    status: obra.Status,
-    data: formatDate(obra.Data),
+    obra_id: String(obra.obra_id),
+    itens_distintos: obra.materiais ? new Set(obra.materiais.map(m => m.code)).size : 0,
+    materiais_total: obra.materiais ? obra.materiais.reduce((sum, m) => sum + m.quantity, 0) : 0,
+    status: obra.status,
+    data: formatDate(obra.data),
   }));
 
   // Criar workbook

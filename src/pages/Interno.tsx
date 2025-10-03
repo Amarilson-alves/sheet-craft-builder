@@ -25,16 +25,17 @@ import { exportObrasExcel } from "@/utils/excelExport";
 import { gasGet, gasPost } from "@/lib/gasClient";
 
 interface Obra {
-  'ID Obra': string;
-  'Técnico': string;
-  'Endereço': string;
-  'Número': string;
-  'Complemento': string;
-  'Tipo_Obra': string;
-  'Observacoes': string;
-  'Data': string;
-  'Status': string;
-  materiais: Array<{
+  obra_id: string | number;
+  tecnico: string;
+  uf: string;
+  endereco: string;
+  numero: number;
+  complemento: string;
+  Tipo_obra: string;
+  obs: string;
+  data: string;
+  status: string;
+  materiais?: Array<{
     code: string;
     name: string;
     unit: string;
@@ -403,19 +404,21 @@ const Interno = () => {
                         <tbody>
                           {obras.map((obra, index) => (
                             <tr key={index} className="border-t hover:bg-muted/50">
-                              <td className="px-4 py-3">{obra.Data}</td>
-                              <td className="px-4 py-3">{obra.Técnico}</td>
-                              <td className="px-4 py-3">{obra.Endereço}</td>
-                              <td className="px-4 py-3">{obra.Número}</td>
                               <td className="px-4 py-3">
-                                <Badge variant="outline">{obra.Tipo_Obra}</Badge>
+                                {obra.data ? new Date(obra.data).toLocaleDateString('pt-BR') : '-'}
+                              </td>
+                              <td className="px-4 py-3">{obra.tecnico}</td>
+                              <td className="px-4 py-3">{obra.endereco}</td>
+                              <td className="px-4 py-3">{obra.numero}</td>
+                              <td className="px-4 py-3">
+                                <Badge variant="outline">{obra.Tipo_obra}</Badge>
                               </td>
                               <td className="px-4 py-3">
-                                <Badge variant="default">{obra.Status}</Badge>
+                                <Badge variant="default">{obra.status || 'Pendente'}</Badge>
                               </td>
                               <td className="px-4 py-3">
                                 <Badge variant="secondary">
-                                  {obra.materiais.length} materiais
+                                  {obra.materiais?.length || 0} materiais
                                 </Badge>
                               </td>
                             </tr>
