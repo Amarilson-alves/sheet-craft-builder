@@ -10,9 +10,11 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Material } from '@/types/material';
 import { updateMaterial } from '@/services/materials';
+import { formatSKU } from '@/lib/formatSKU';
 
 const updateMaterialSchema = z.object({
   quantidade: z.number().min(0, 'Quantidade deve ser maior ou igual a zero'),
@@ -118,13 +120,17 @@ export function EditMaterialModal({ material, open, onOpenChange, onSuccess }: E
 
           <div>
             <Label htmlFor="unidade">Unidade</Label>
-            <Input
-              id="unidade"
-              value={formData.unidade}
-              onChange={(e) => handleInputChange('unidade', e.target.value)}
-              placeholder="Ex: UN, M, KG"
-              className={errors.unidade ? 'border-red-500' : ''}
-            />
+            <Select value={formData.unidade} onValueChange={(value) => handleInputChange('unidade', value)}>
+              <SelectTrigger className={errors.unidade ? 'border-red-500' : ''}>
+                <SelectValue placeholder="Selecione a unidade" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="KG">KG</SelectItem>
+                <SelectItem value="UN">UN</SelectItem>
+                <SelectItem value="MT">MT</SelectItem>
+                <SelectItem value="CX">CX</SelectItem>
+              </SelectContent>
+            </Select>
             {errors.unidade && (
               <p className="text-sm text-red-500 mt-1">{errors.unidade}</p>
             )}

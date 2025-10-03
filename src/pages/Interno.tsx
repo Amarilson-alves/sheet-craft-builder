@@ -23,6 +23,7 @@ import { MaterialsSearchModal } from "@/components/MaterialsSearchModal";
 import { BackButton } from "@/components/BackButton";
 import { exportObrasExcel } from "@/utils/excelExport";
 import { gasGet, gasPost } from "@/lib/gasClient";
+import { formatSKU } from "@/lib/formatSKU";
 
 interface Obra {
   obra_id: string | number;
@@ -468,9 +469,10 @@ const Interno = () => {
                     <div className="space-y-2">
                       <Label>SKU:</Label>
                       <Input
-                        placeholder="Código do material"
+                        placeholder="xxxx-xxxx-x"
                         value={newMaterial.code}
-                        onChange={(e) => setNewMaterial(prev => ({ ...prev, code: e.target.value }))}
+                        onChange={(e) => setNewMaterial(prev => ({ ...prev, code: formatSKU(e.target.value) }))}
+                        maxLength={11}
                       />
                     </div>
                     <div className="space-y-2">
@@ -483,11 +485,17 @@ const Interno = () => {
                     </div>
                     <div className="space-y-2">
                       <Label>Unidade:</Label>
-                      <Input
-                        placeholder="Ex: UN, M, KG"
-                        value={newMaterial.unit}
-                        onChange={(e) => setNewMaterial(prev => ({ ...prev, unit: e.target.value }))}
-                      />
+                      <Select value={newMaterial.unit} onValueChange={(value) => setNewMaterial(prev => ({ ...prev, unit: value }))}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione a unidade" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="KG">KG</SelectItem>
+                          <SelectItem value="UN">UN</SelectItem>
+                          <SelectItem value="MT">MT</SelectItem>
+                          <SelectItem value="CX">CX</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="space-y-2">
                       <Label>Categoria:</Label>
