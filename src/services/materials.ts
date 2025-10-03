@@ -1,6 +1,9 @@
-import { gasGet, gasPost } from "@/lib/gasClient";
+import { gasGet } from "@/lib/gasClient";
+import { postToGAS } from "@/lib/postToGAS";
 import type { Material } from "@/types/material";
 import { queryLimiter } from "@/utils/rateLimit";
+
+const GAS_URL = "https://script.google.com/macros/s/AKfycbyKcmCNAIfMQyN_UdoHJ_ACCto6LN4IujIBI4r20ANXm9qRPf2GILVLNVAb4NxZ47inQw/exec";
 
 export async function getMaterials(): Promise<Material[]> {
   if (!queryLimiter.isAllowed('getMaterials')) {
@@ -42,13 +45,18 @@ export async function updateMaterial(
   sku: string, 
   data: { quantidade: number; descricao: string; unidade: string }
 ): Promise<{ ok: boolean }> {
-  const response = await gasPost('updateMaterial', { sku, ...data });
+  const response = await postToGAS(GAS_URL, 'updateMaterial', {
+    sku,
+    quantidade: data.quantidade,
+    descricao: data.descricao,
+    unidade: data.unidade
+  });
   
-  if (response.error) {
+  if (response?.error) {
     throw new Error(response.error);
   }
   
-  return { ok: response.ok ?? true };
+  return { ok: response?.ok ?? true };
 }
 
 export async function incrementMaterial(
@@ -56,21 +64,28 @@ export async function incrementMaterial(
   delta: number, 
   motivo?: string
 ): Promise<{ ok: boolean; newQty: number }> {
-  const response = await gasPost('incrementMaterial', { sku, delta, motivo });
+  const response = await postToGAS(GAS_URL, 'incrementMaterial', { 
+    sku, 
+    delta, 
+    motivo: motivo || '' 
+  });
   
-  if (response.error) {
+  if (response?.error) {
     throw new Error(response.error);
   }
   
-  return { ok: response.ok ?? true, newQty: response.newQty ?? 0 };
+  return { ok: response?.ok ?? true, newQty: response?.newQty ?? 0 };
 }
 
 export async function deleteMaterial(sku: string, motivo?: string): Promise<{ ok: boolean }> {
-  const response = await gasPost('deleteMaterial', { sku, motivo });
+  const response = await postToGAS(GAS_URL, 'deleteMaterial', { 
+    sku, 
+    motivo: motivo || '' 
+  });
   
-  if (response.error) {
+  if (response?.error) {
     throw new Error(response.error);
   }
   
-  return { ok: response.ok ?? true };
+  return { ok: response?.ok ?? true };
 }

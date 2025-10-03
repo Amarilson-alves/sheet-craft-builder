@@ -9,8 +9,10 @@ import { useToast } from "@/hooks/use-toast";
 import { MaterialsButtonGrid } from "@/components/MaterialsButtonGrid";
 import { useMaterials } from "@/hooks/useMaterials";
 import { Save, Eraser, Building, User, Package, Minus, Plus, Filter } from "lucide-react";
-import { gasPost } from "@/lib/gasClient";
+import { postToGAS } from "@/lib/postToGAS";
 import type { Material, SelectedMaterial } from "@/types/material";
+
+const GAS_URL = "https://script.google.com/macros/s/AKfycbyKcmCNAIfMQyN_UdoHJ_ACCto6LN4IujIBI4r20ANXm9qRPf2GILVLNVAb4NxZ47inQw/exec";
 import { BackButton } from "@/components/BackButton";
 import { sanitizeObject, sanitizeNumber } from "@/utils/sanitize";
 import { saveObraLimiter } from "@/utils/rateLimit";
@@ -91,18 +93,27 @@ const Campo = () => {
     setSaving(true);
 
     try {
-      // Sanitizar dados antes de enviar
-      const sanitizedData = sanitizeObject({
-        ...formData,
+      // Preparar dados para o GAS com os nomes exatos da planilha
+      const obraPayload = {
+        obra_id: formData.idObra || "",
+        tecnico: formData.tecnico,
+        uf: formData.uf,
+        endereco: formData.endereco,
+        numero: sanitizeNumber(formData.numero),
+        complemento: formData.complemento || "",
+        Tipo_obra: formData.tipoObra,
+        obs: formData.obs || "",
+        data: new Date().toISOString().slice(0, 10),
+        status: "Nova",
         materiais: selectedMaterials.map(m => ({
           code: m.SKU,
           name: m.Descrição,
           unit: m.Unidade,
           quantity: sanitizeNumber(m.quantidadeSelecionada)
         }))
-      });
+      };
 
-      const result = await gasPost('saveObra', { data: sanitizedData });
+      const result = await postToGAS(GAS_URL, 'saveObra', obraPayload);
 
       if (result.error) {
         throw new Error(result.error);
