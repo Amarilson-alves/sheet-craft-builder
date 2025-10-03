@@ -1,9 +1,6 @@
-import { gasGet } from "@/lib/gasClient";
-import { postToGAS } from "@/lib/postToGAS";
+import { gasGet, gasPost } from "@/lib/gasClient";
 import type { Material } from "@/types/material";
 import { queryLimiter } from "@/utils/rateLimit";
-
-const GAS_URL = "https://script.google.com/macros/s/AKfycbyKcmCNAIfMQyN_UdoHJ_ACCto6LN4IujIBI4r20ANXm9qRPf2GILVLNVAb4NxZ47inQw/exec";
 
 export async function getMaterials(): Promise<Material[]> {
   if (!queryLimiter.isAllowed('getMaterials')) {
@@ -45,7 +42,7 @@ export async function updateMaterial(
   sku: string, 
   data: { quantidade: number; descricao: string; unidade: string }
 ): Promise<{ ok: boolean }> {
-  const response = await postToGAS(GAS_URL, 'updateMaterial', {
+  const response = await gasPost('updateMaterial', {
     sku,
     quantidade: data.quantidade,
     descricao: data.descricao,
@@ -64,7 +61,7 @@ export async function incrementMaterial(
   delta: number, 
   motivo?: string
 ): Promise<{ ok: boolean; newQty: number }> {
-  const response = await postToGAS(GAS_URL, 'incrementMaterial', { 
+  const response = await gasPost('incrementMaterial', { 
     sku, 
     delta, 
     motivo: motivo || '' 
@@ -78,7 +75,7 @@ export async function incrementMaterial(
 }
 
 export async function deleteMaterial(sku: string, motivo?: string): Promise<{ ok: boolean }> {
-  const response = await postToGAS(GAS_URL, 'deleteMaterial', { 
+  const response = await gasPost('deleteMaterial', { 
     sku, 
     motivo: motivo || '' 
   });

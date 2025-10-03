@@ -1,4 +1,5 @@
 import * as XLSX from 'xlsx';
+import { flattenObras } from '@/lib/flattenObras';
 
 interface ObraExport {
   obra_id: string | number;
@@ -19,20 +20,6 @@ interface ObraExport {
   }>;
 }
 
-interface MaterialRow {
-  obra_id: string;
-  cidade: string;
-  UF: string;
-  tecnico: string;
-  data: string;
-  status: string;
-  SKU: string;
-  Descrição: string;
-  Unidade: string;
-  Quantidade: number;
-  obs: string;
-}
-
 interface ResumoRow {
   obra_id: string;
   itens_distintos: number;
@@ -46,28 +33,8 @@ export function exportObrasExcel(obras: ObraExport[]): void {
     throw new Error('Nenhuma obra para exportar');
   }
 
-  // Preparar dados para a aba "Materiais por Obra"
-  const materialsRows: MaterialRow[] = [];
-  
-  obras.forEach((obra) => {
-    if (obra.materiais && obra.materiais.length > 0) {
-      obra.materiais.forEach((material) => {
-        materialsRows.push({
-          obra_id: String(obra.obra_id),
-          cidade: obra.endereco,
-          UF: obra.uf || '',
-          tecnico: obra.tecnico,
-          data: formatDate(obra.data),
-          status: obra.status,
-          SKU: material.code,
-          Descrição: material.name,
-          Unidade: material.unit,
-          Quantidade: material.quantity,
-          obs: obra.obs || '',
-        });
-      });
-    }
-  });
+  // ✅ Usar flattenObras para criar uma linha por material
+  const materialsRows = flattenObras(obras);
 
   // Preparar dados para a aba "Resumo por Obra"
   const resumoRows: ResumoRow[] = obras.map((obra) => ({

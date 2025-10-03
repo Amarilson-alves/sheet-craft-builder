@@ -4,39 +4,46 @@ const GAS_URL = "https://script.google.com/macros/s/AKfycbyKcmCNAIfMQyN_UdoHJ_AC
 /**
  * Wrapper para chamadas GET ao Google Apps Script
  */
-export async function gasGet(params: Record<string, string>) {
+export async function gasGet<T = any>(params: Record<string, string>): Promise<T> {
   const url = new URL(GAS_URL);
   Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
   
   const res = await fetch(url.toString(), {
     method: 'GET',
     cache: 'no-store',
+    redirect: 'follow',
   });
   
-  if (!res.ok) {
-    throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+  const text = await res.text();
+  try { 
+    return JSON.parse(text); 
+  } catch { 
+    return text as unknown as T; 
   }
-  
-  return await res.json();
 }
 
 /**
- * Wrapper para chamadas POST ao Google Apps Script
+ * ✅ POST sem preflight CORS (sem headers custom)
+ * Usa URLSearchParams (application/x-www-form-urlencoded) para evitar preflight
  */
-export async function gasPost(action: string, body: any) {
-  const url = new URL(GAS_URL);
-  url.searchParams.set('action', action);
-  
-  const res = await fetch(url.toString(), {
-    method: 'POST',
-    cache: 'no-store',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action, ...body }),
-  });
-  
-  if (!res.ok) {
-    throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+export async function gasPost<T = any>(action: string, payload?: any): Promise<T> {
+  const body = new URLSearchParams();
+  body.set("action", action);
+  if (payload !== undefined) {
+    body.set("payload", typeof payload === "string" ? payload : JSON.stringify(payload));
   }
-  
-  return await res.json();
+
+  const res = await fetch(GAS_URL, {
+    method: "POST",
+    // ⚠️ IMPORTANTE: sem headers custom para evitar preflight
+    body,
+    redirect: "follow", // GAS retorna 302 -> googleusercontent
+  });
+
+  const text = await res.text();
+  try { 
+    return JSON.parse(text); 
+  } catch { 
+    return text as unknown as T; 
+  }
 }

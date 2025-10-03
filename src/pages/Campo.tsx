@@ -9,10 +9,8 @@ import { useToast } from "@/hooks/use-toast";
 import { MaterialsButtonGrid } from "@/components/MaterialsButtonGrid";
 import { useMaterials } from "@/hooks/useMaterials";
 import { Save, Eraser, Building, User, Package, Minus, Plus, Filter } from "lucide-react";
-import { postToGAS } from "@/lib/postToGAS";
+import { gasPost } from "@/lib/gasClient";
 import type { Material, SelectedMaterial } from "@/types/material";
-
-const GAS_URL = "https://script.google.com/macros/s/AKfycbyKcmCNAIfMQyN_UdoHJ_ACCto6LN4IujIBI4r20ANXm9qRPf2GILVLNVAb4NxZ47inQw/exec";
 import { BackButton } from "@/components/BackButton";
 import { sanitizeObject, sanitizeNumber } from "@/utils/sanitize";
 import { saveObraLimiter } from "@/utils/rateLimit";
@@ -113,7 +111,7 @@ const Campo = () => {
         }))
       };
 
-      const result = await postToGAS(GAS_URL, 'saveObra', obraPayload);
+      const result = await gasPost('saveObra', obraPayload);
 
       if (result.error) {
         throw new Error(result.error);
