@@ -42,12 +42,17 @@ export async function updateMaterial(
   sku: string, 
   data: { quantidade: number; descricao: string; unidade: string }
 ): Promise<{ ok: boolean }> {
-  const response = await gasPost('updateMaterial', {
-    sku,
-    quantidade: data.quantidade,
-    descricao: data.descricao,
-    unidade: data.unidade
-  });
+  const payload = {
+    id: sku.trim(), // Chave de busca (1ª coluna da planilha)
+    SKU: sku.trim(),
+    Descrição: data.descricao,
+    Unidade: data.unidade,
+    Qtdd_Depósito: Number(data.quantidade) || 0,
+  };
+
+  console.log('updateMaterial payload:', payload);
+  
+  const response = await gasPost('updateMaterial', payload);
   
   if (response?.error) {
     throw new Error(response.error);
@@ -75,10 +80,14 @@ export async function incrementMaterial(
 }
 
 export async function deleteMaterial(sku: string, motivo?: string): Promise<{ ok: boolean }> {
-  const response = await gasPost('deleteMaterial', { 
-    sku, 
+  const payload = { 
+    id: sku.trim(), // Chave de busca (1ª coluna da planilha)
     motivo: motivo || '' 
-  });
+  };
+
+  console.log('deleteMaterial payload:', payload);
+  
+  const response = await gasPost('deleteMaterial', payload);
   
   if (response?.error) {
     throw new Error(response.error);

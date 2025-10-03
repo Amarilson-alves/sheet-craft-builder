@@ -173,12 +173,17 @@ const Interno = () => {
     }
 
     try {
-      const result = await gasPost('addMaterial', {
-        code: newMaterial.code,
-        name: newMaterial.name,
-        unit: newMaterial.unit,
-        category: newMaterial.category
-      });
+      const payload = {
+        SKU: newMaterial.code.trim(),
+        Descrição: newMaterial.name.trim(),
+        Unidade: newMaterial.unit.trim(),
+        Qtdd_Depósito: 0, // Quantidade inicial
+        Categoria: newMaterial.category || 'Interno',
+      };
+
+      console.log('addMaterial payload:', payload);
+
+      const result = await gasPost('addMaterial', payload);
 
       if (result.error) {
         throw new Error(result.error);
@@ -203,7 +208,10 @@ const Interno = () => {
 
   const deleteMaterial = async (code: string) => {
     try {
-      const result = await gasPost('deleteMaterial', { sku: code });
+      const payload = { id: code.trim() };
+      console.log('deleteMaterial payload:', payload);
+      
+      const result = await gasPost('deleteMaterial', payload);
 
       if (result.error) {
         throw new Error(result.error);
