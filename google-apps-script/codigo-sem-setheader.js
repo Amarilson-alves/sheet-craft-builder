@@ -106,7 +106,7 @@ function getMaterials(e) {
     if (!sheet) throw new Error('Sheet não encontrada: ' + SHEET_NAMES.materiais);
 
     const data = sheet.getDataRange().getValues();
-    const header = data[0];
+    const header = data[0].map(h => String(h).trim()); // Remove espaços extras
     const values = data.slice(1);
 
     const results = values.map(row => {
@@ -190,12 +190,12 @@ function getObras(e) {
 
     // Buscar obras
     const dataObras = sheetObras.getDataRange().getValues();
-    const headerObras = dataObras[0];
+    const headerObras = dataObras[0].map(h => String(h).trim()); // Remove espaços extras
     const valuesObras = dataObras.slice(1);
 
     // Buscar materiais utilizados
     const dataMateriais = sheetMateriais.getDataRange().getValues();
-    const headerMateriais = dataMateriais[0];
+    const headerMateriais = dataMateriais[0].map(h => String(h).trim()); // Remove espaços extras
     const valuesMateriais = dataMateriais.slice(1);
 
     // Aplicar filtros se fornecidos
