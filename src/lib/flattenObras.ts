@@ -5,10 +5,7 @@
 export function flattenObras(obras: any[]) {
   const rows: any[] = [];
   
-  console.log('flattenObras - Input obras:', JSON.stringify(obras, null, 2));
-  
   for (const o of obras) {
-    console.log('Processing obra:', o.obra_id, 'materiais:', o.materiais);
     const base = {
       obra_id: o.obra_id ?? o['obra_id '] ?? o.ID ?? o.id ?? "",
       tecnico: o.tecnico ?? "",
@@ -36,12 +33,14 @@ export function flattenObras(obras: any[]) {
 
     // Adiciona uma linha por material
     for (const m of o.materiais) {
+      const quantidade = Number(m.Quantidade) || 0;
+      
       rows.push({
         ...base,
         SKU: m.SKU ?? "",
         Descrição: m.Descrição ?? m['Descrição '] ?? "",
         Unidade: m.Unidade ?? "",
-        Quantidade: Number(m.Quantidade ?? 0),
+        Quantidade: quantidade,
       });
     }
   }

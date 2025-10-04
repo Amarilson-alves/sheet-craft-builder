@@ -13,10 +13,14 @@ interface ObraExport {
   data: string;
   status: string;
   materiais?: Array<{
-    code: string;
-    name: string;
-    unit: string;
-    quantity: number;
+    SKU?: string;
+    Descrição?: string;
+    Unidade?: string;
+    Quantidade?: number;
+    code?: string;
+    name?: string;
+    unit?: string;
+    quantity?: number;
   }>;
 }
 
@@ -37,13 +41,19 @@ export function exportObrasExcel(obras: ObraExport[]): void {
   const materialsRows = flattenObras(obras);
 
   // Preparar dados para a aba "Resumo por Obra"
-  const resumoRows: ResumoRow[] = obras.map((obra) => ({
-    obra_id: String(obra.obra_id),
-    itens_distintos: obra.materiais ? new Set(obra.materiais.map(m => m.code)).size : 0,
-    materiais_total: obra.materiais ? obra.materiais.reduce((sum, m) => sum + m.quantity, 0) : 0,
-    status: obra.status,
-    data: formatDate(obra.data),
-  }));
+  const resumoRows: ResumoRow[] = obras.map((obra) => {
+    const materiais = obra.materiais || [];
+    const itensDistintos = materiais.length > 0 ? new Set(materiais.map(m => m.SKU || m.code || '')).size : 0;
+    const materiaisTotal = materiais.length > 0 ? materiais.reduce((sum, m) => sum + (Number(m.Quantidade || m.quantity) || 0), 0) : 0;
+    
+    return {
+      obra_id: String(obra.obra_id || ''),
+      itens_distintos: itensDistintos,
+      materiais_total: materiaisTotal,
+      status: obra.status || '',
+      data: formatDate(obra.data || ''),
+    };
+  });
 
   // Criar workbook
   const wb = XLSX.utils.book_new();
