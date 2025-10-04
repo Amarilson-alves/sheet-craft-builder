@@ -1,5 +1,5 @@
 // URL do Google Apps Script Web App
-const GAS_URL = "https://script.google.com/macros/s/AKfycbxFrSfmg16RM7ZGrpQLrxq13nWS25Yx93FkpW8y0daglCZqv3XgcSMGyWGTp8yJHje8g/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbxkwPuO7uKHWpY5YrsQ5WSwn6upWDxaP1D9fzQZVkTytgZOBbZE_iLro9f2xKGb53fdZw/exec";
 
 /**
  * Wrapper para chamadas GET ao Google Apps Script
