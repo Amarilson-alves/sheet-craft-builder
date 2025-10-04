@@ -113,17 +113,30 @@ const Campo = () => {
 
       const result = await gasPost('saveObra', obraPayload);
 
+      console.log('Resposta do saveObra:', result);
+
       if (result.error) {
         throw new Error(result.error);
       }
 
       toast({
         title: "Obra salva com sucesso!",
-        description: `ID da obra: ${result.obraId}`,
+        description: `ID da obra: ${result.obra_id || result.obraId || 'Gerado automaticamente'}`,
       });
 
-      // Limpar formulário
-      handleClear();
+      // Limpar formulário somente após sucesso
+      setFormData({
+        tecnico: '',
+        idObra: '',
+        endereco: '',
+        numero: '',
+        complemento: '',
+        uf: '',
+        tipoObra: '',
+        obs: ''
+      });
+      setSelectedMaterials([]);
+      setFilter('none');
 
     } catch (error) {
       console.error('Erro ao salvar obra:', error);
