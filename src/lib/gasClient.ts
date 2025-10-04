@@ -33,31 +33,16 @@ export async function gasPost<T = any>(action: string, payload?: any): Promise<T
     body.set("payload", typeof payload === "string" ? payload : JSON.stringify(payload));
   }
 
-  // Primeira chamada POST - pode retornar 302
   const res = await fetch(GAS_URL, {
     method: "POST",
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+    },
     body,
-    redirect: "manual", // Não seguir automaticamente
+    redirect: "follow", // Seguir automaticamente o 302 do GAS
+    cache: "no-cache",
   });
 
-  // Se retornou 302, seguir o redirecionamento manualmente
-  if (res.status === 302 || res.status === 301) {
-    const redirectUrl = res.headers.get("location");
-    if (redirectUrl) {
-      const redirectRes = await fetch(redirectUrl, {
-        method: "GET",
-        redirect: "follow",
-      });
-      const text = await redirectRes.text();
-      try { 
-        return JSON.parse(text); 
-      } catch { 
-        return text as unknown as T; 
-      }
-    }
-  }
-
-  // Se não houve redirecionamento, processar resposta normal
   const text = await res.text();
   try { 
     return JSON.parse(text); 
