@@ -219,11 +219,12 @@ function getObras(e) {
       if (materaisData.length > 1 && obraId) {
         for (let i = 1; i < materaisData.length; i++) {
           if (materaisData[i][0] === obraId) {
+            // Aba "Materiais Utilizados": obra_id | uf | endereco | numero | SKU | Descrição | Unidade | Quantidade
             materiais.push({
-              code: materaisData[i][1],
-              name: materaisData[i][2],
-              unit: materaisData[i][3],
-              quantity: materaisData[i][4]
+              SKU: materaisData[i][4],
+              Descrição: materaisData[i][5],
+              Unidade: materaisData[i][6],
+              Quantidade: materaisData[i][7]
             });
           }
         }
