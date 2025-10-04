@@ -52,22 +52,40 @@ function doGet(e) {
 }
 
 /**
- * Handler para requisições POST
+ * ✅ Handler para requisições POST - DUAL-STACK (aceita URL-encoded E JSON puro)
  */
 function doPost(e) {
   try {
-    let action = (e && e.parameter && e.parameter.action) ? e.parameter.action : null;
-    let payload = null;
-    
-    // Extrair payload do e.parameter.payload (URL encoded form data)
-    if (e && e.parameter && e.parameter.payload) {
-      try {
-        payload = JSON.parse(e.parameter.payload);
-      } catch (parseErr) {
-        Logger.log('Erro ao parsear payload: ' + parseErr.message);
+    var action = null, payload = null;
+
+    // 1) Tenta URL-encoded (e.parameter) - COMPATÍVEL COM CÓDIGO ATUAL
+    if (e && e.parameter) {
+      action = e.parameter.action || action;
+      if (e.parameter.payload) {
+        try { 
+          payload = JSON.parse(e.parameter.payload); 
+        } catch(_) {
+          Logger.log('Payload não é JSON válido em e.parameter.payload');
+        }
       }
     }
-    
+
+    // 2) Se não funcionou, tenta JSON puro em e.postData (para cURL e outros clients)
+    if ((!action || payload === null) && e && e.postData && e.postData.contents) {
+      var ct = (e.postData.type || '').toLowerCase();
+      if (ct.indexOf('application/json') !== -1) {
+        try {
+          var body = JSON.parse(e.postData.contents);
+          if (body && typeof body === 'object') {
+            action = body.action || action;
+            payload = body.payload !== undefined ? body.payload : (payload !== null ? payload : body);
+          }
+        } catch(jsonErr) {
+          Logger.log('Erro ao parsear JSON de e.postData: ' + jsonErr.message);
+        }
+      }
+    }
+
     Logger.log('doPost - action: ' + action);
     Logger.log('doPost - payload: ' + JSON.stringify(payload));
     
