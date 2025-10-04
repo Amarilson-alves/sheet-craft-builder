@@ -6,14 +6,18 @@ const Index = () => {
   
   return (
     <div 
-      className="min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8"
-      style={{
-        backgroundImage: `url(${routerBg})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      }}
+      className="min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden"
     >
+      <div 
+        className="absolute inset-0 -z-10"
+        style={{
+          backgroundImage: `url(${routerBg})`,
+          backgroundSize: 'contain',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundColor: 'hsl(var(--background))'
+        }}
+      />
       <div className="max-w-md w-full">
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 sm:p-8 text-center shadow-strong">
           <div className="mb-6">
