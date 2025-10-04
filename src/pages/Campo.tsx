@@ -209,24 +209,24 @@ const Campo = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-primary text-primary-foreground">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <BackButton fallbackPath="/" className="bg-primary-foreground/10 text-primary-foreground border-primary-foreground/20 hover:bg-primary-foreground/20" />
-              <div>
-                <h1 className="text-2xl font-bold flex items-center gap-2">
-                  <Building className="h-6 w-6" />
-                  Cadastro de Materiais - Técnicos
+      <header className="bg-primary text-primary-foreground sticky top-0 z-10">
+        <div className="container mx-auto px-4 py-4 sm:py-6">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center space-x-2 sm:space-x-4 min-w-0">
+              <BackButton fallbackPath="/" className="bg-primary-foreground/10 text-primary-foreground border-primary-foreground/20 hover:bg-primary-foreground/20 flex-shrink-0" />
+              <div className="min-w-0">
+                <h1 className="text-lg sm:text-2xl font-bold flex items-center gap-2">
+                  <Building className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" />
+                  <span className="truncate">Campo - Técnicos</span>
                 </h1>
-                <p className="text-primary-foreground/80">Sistema para registro de obras e materiais utilizados</p>
+                <p className="text-primary-foreground/80 text-xs sm:text-sm hidden sm:block">Sistema para registro de obras e materiais utilizados</p>
               </div>
             </div>
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8 space-y-8">
+      <main className="container mx-auto px-4 py-6 sm:py-8 space-y-6 sm:space-y-8">
         {/* Dados da Obra */}
         <Card className="animate-fadeIn">
           <CardHeader>

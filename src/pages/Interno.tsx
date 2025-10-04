@@ -273,24 +273,24 @@ const Interno = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-primary text-primary-foreground">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <BackButton fallbackPath="/" className="bg-primary-foreground/10 text-primary-foreground border-primary-foreground/20 hover:bg-primary-foreground/20" />
-              <div>
-                <h1 className="text-2xl font-bold flex items-center gap-2">
-                  <Settings className="h-6 w-6" />
-                  Cadastro de Materiais - Administração
+      <header className="bg-primary text-primary-foreground sticky top-0 z-10">
+        <div className="container mx-auto px-4 py-4 sm:py-6">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center space-x-2 sm:space-x-4 min-w-0">
+              <BackButton fallbackPath="/" className="bg-primary-foreground/10 text-primary-foreground border-primary-foreground/20 hover:bg-primary-foreground/20 flex-shrink-0" />
+              <div className="min-w-0">
+                <h1 className="text-lg sm:text-2xl font-bold flex items-center gap-2">
+                  <Settings className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" />
+                  <span className="truncate">Administração</span>
                 </h1>
-                <p className="text-primary-foreground/80">Área de acesso para consulta e exportação de dados</p>
+                <p className="text-primary-foreground/80 text-xs sm:text-sm hidden sm:block">Área de acesso para consulta e exportação de dados</p>
               </div>
             </div>
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-6 sm:py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-2 p-2 gap-2">
             <TabsTrigger value="consultar" className="flex items-center gap-2 py-3">
@@ -314,9 +314,9 @@ const Interno = () => {
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Filtros */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label>Filtrar por Endereço:</Label>
+                    <Label className="text-sm">Filtrar por Endereço:</Label>
                     <Input
                       placeholder="Digite o endereço"
                       value={filters.endereco}
@@ -324,7 +324,7 @@ const Interno = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Filtrar por Técnico:</Label>
+                    <Label className="text-sm">Filtrar por Técnico:</Label>
                     <Input
                       placeholder="Digite o nome do técnico"
                       value={filters.tecnico}
@@ -332,7 +332,7 @@ const Interno = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Filtrar por Data Específica:</Label>
+                    <Label className="text-sm">Filtrar por Data Específica:</Label>
                     <Input
                       type="date"
                       value={filters.data}
@@ -340,7 +340,7 @@ const Interno = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Data Inicial:</Label>
+                    <Label className="text-sm">Data Inicial:</Label>
                     <Input
                       type="date"
                       value={filters.dateFrom}
@@ -348,7 +348,7 @@ const Interno = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Data Final:</Label>
+                    <Label className="text-sm">Data Final:</Label>
                     <Input
                       type="date"
                       value={filters.dateTo}
@@ -356,7 +356,7 @@ const Interno = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Tipo de Obra:</Label>
+                    <Label className="text-sm">Tipo de Obra:</Label>
                     <Select value={filters.tipoObra} onValueChange={(value) => setFilters(prev => ({ ...prev, tipoObra: value }))}>
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o tipo" />
@@ -371,8 +371,8 @@ const Interno = () => {
                 </div>
 
                 {/* Botões de Ação */}
-                <div className="flex flex-wrap gap-4">
-                  <Button onClick={loadObras} disabled={loading}>
+                <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
+                  <Button onClick={loadObras} disabled={loading} className="w-full sm:w-auto">
                     {loading ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
@@ -385,11 +385,11 @@ const Interno = () => {
                       </>
                     )}
                   </Button>
-                  <Button variant="success" onClick={exportToExcel} disabled={obras.length === 0}>
+                  <Button variant="success" onClick={exportToExcel} disabled={obras.length === 0} className="w-full sm:w-auto">
                     <Download className="h-4 w-4 mr-2" />
-                    Exportar para Excel
+                    Exportar Excel
                   </Button>
-                  <Button variant="outline" onClick={clearFilters}>
+                  <Button variant="outline" onClick={clearFilters} className="w-full sm:w-auto">
                     Limpar Filtros
                   </Button>
                 </div>
@@ -397,43 +397,45 @@ const Interno = () => {
                 {/* Resultados */}
                 {obras.length > 0 && (
                   <div className="rounded-lg border">
-                    <div className="overflow-x-auto">
-                      <table className="w-full">
-                        <thead className="bg-muted">
-                          <tr>
-                            <th className="px-4 py-3 text-left font-medium">Data</th>
-                            <th className="px-4 py-3 text-left font-medium">Técnico</th>
-                            <th className="px-4 py-3 text-left font-medium">Endereço</th>
-                            <th className="px-4 py-3 text-left font-medium">Número</th>
-                            <th className="px-4 py-3 text-left font-medium">Tipo</th>
-                            <th className="px-4 py-3 text-left font-medium">Status</th>
-                            <th className="px-4 py-3 text-left font-medium">Materiais</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {obras.map((obra, index) => (
-                            <tr key={index} className="border-t hover:bg-muted/50">
-                              <td className="px-4 py-3">
-                                {obra.data ? new Date(obra.data).toLocaleDateString('pt-BR') : '-'}
-                              </td>
-                              <td className="px-4 py-3">{obra.tecnico}</td>
-                              <td className="px-4 py-3">{obra.endereco}</td>
-                              <td className="px-4 py-3">{obra.numero}</td>
-                              <td className="px-4 py-3">
-                                <Badge variant="outline">{obra.Tipo_obra}</Badge>
-                              </td>
-                              <td className="px-4 py-3">
-                                <Badge variant="default">{obra.status || 'Pendente'}</Badge>
-                              </td>
-                              <td className="px-4 py-3">
-                                <Badge variant="secondary">
-                                  {obra.materiais?.length || 0} materiais
-                                </Badge>
-                              </td>
+                    <div className="overflow-x-auto -mx-4 sm:mx-0">
+                      <div className="inline-block min-w-full align-middle">
+                        <table className="min-w-full divide-y divide-border">
+                          <thead className="bg-muted">
+                            <tr>
+                              <th className="px-3 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium whitespace-nowrap">Data</th>
+                              <th className="px-3 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium whitespace-nowrap">Técnico</th>
+                              <th className="px-3 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium whitespace-nowrap hidden md:table-cell">Endereço</th>
+                              <th className="px-3 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium whitespace-nowrap hidden sm:table-cell">Número</th>
+                              <th className="px-3 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium whitespace-nowrap">Tipo</th>
+                              <th className="px-3 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium whitespace-nowrap hidden lg:table-cell">Status</th>
+                              <th className="px-3 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium whitespace-nowrap">Materiais</th>
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                          </thead>
+                          <tbody className="divide-y divide-border bg-background">
+                            {obras.map((obra, index) => (
+                              <tr key={index} className="hover:bg-muted/50">
+                                <td className="px-3 sm:px-4 py-3 text-xs sm:text-sm whitespace-nowrap">
+                                  {obra.data ? new Date(obra.data).toLocaleDateString('pt-BR') : '-'}
+                                </td>
+                                <td className="px-3 sm:px-4 py-3 text-xs sm:text-sm">{obra.tecnico}</td>
+                                <td className="px-3 sm:px-4 py-3 text-xs sm:text-sm hidden md:table-cell">{obra.endereco}</td>
+                                <td className="px-3 sm:px-4 py-3 text-xs sm:text-sm hidden sm:table-cell">{obra.numero}</td>
+                                <td className="px-3 sm:px-4 py-3">
+                                  <Badge variant="outline" className="text-xs">{obra.Tipo_obra}</Badge>
+                                </td>
+                                <td className="px-3 sm:px-4 py-3 hidden lg:table-cell">
+                                  <Badge variant="default" className="text-xs">{obra.status || 'Pendente'}</Badge>
+                                </td>
+                                <td className="px-3 sm:px-4 py-3">
+                                  <Badge variant="secondary" className="text-xs whitespace-nowrap">
+                                    {obra.materiais?.length || 0}
+                                  </Badge>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   </div>
                 )}
