@@ -5,19 +5,17 @@ import routerBg from "@/assets/router-bg.png";
 const Index = () => {
   
   return (
-    <div 
-      className="min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden"
-    >
+    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden">
       <div 
         className="absolute inset-0 -z-10"
         style={{
           backgroundImage: `url(${routerBg})`,
-          backgroundSize: 'contain',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          backgroundColor: 'hsl(var(--background))'
+          backgroundSize: 'cover',
+          backgroundPosition: 'center center',
+          backgroundRepeat: 'no-repeat'
         }}
       />
+      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/20 via-transparent to-black/20" />
       <div className="max-w-md w-full">
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 sm:p-8 text-center shadow-strong">
           <div className="mb-6">
