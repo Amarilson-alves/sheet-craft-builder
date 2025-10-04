@@ -370,51 +370,51 @@ const Campo = () => {
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Filter className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium">Filtrar por categoria:</span>
+                <span className="text-sm font-medium">Filtrar materiais:</span>
               </div>
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  variant={filter === 'interno' ? 'default' : 'outline'}
-                  onClick={() => setFilter('interno')}
-                  aria-pressed={filter === 'interno'}
-                >
-                  Interno
-                </Button>
-                <Button
-                  variant={filter === 'externo' ? 'default' : 'outline'}
-                  onClick={() => setFilter('externo')}
-                  aria-pressed={filter === 'externo'}
-                >
-                  Externo
-                </Button>
-                <Button
-                  variant={filter === 'todos' ? 'default' : 'outline'}
-                  onClick={() => setFilter('todos')}
-                  aria-pressed={filter === 'todos'}
-                >
-                  Todos
-                </Button>
+              <div className="flex flex-col sm:flex-row gap-3">
+                {/* Botões de categoria */}
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    variant={filter === 'interno' ? 'default' : 'outline'}
+                    onClick={() => setFilter('interno')}
+                    aria-pressed={filter === 'interno'}
+                  >
+                    Interno
+                  </Button>
+                  <Button
+                    variant={filter === 'externo' ? 'default' : 'outline'}
+                    onClick={() => setFilter('externo')}
+                    aria-pressed={filter === 'externo'}
+                  >
+                    Externo
+                  </Button>
+                  <Button
+                    variant={filter === 'todos' ? 'default' : 'outline'}
+                    onClick={() => setFilter('todos')}
+                    aria-pressed={filter === 'todos'}
+                  >
+                    Todos
+                  </Button>
+                </div>
+                
+                {/* Campo de busca */}
+                <div className="flex-1 min-w-[200px] relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="searchMaterial"
+                    placeholder="Buscar por nome ou SKU..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
               </div>
-              
-              {/* Filtro de Busca Avançado */}
-              <div className="space-y-2">
-                <Label htmlFor="searchMaterial" className="flex items-center gap-2">
-                  <Search className="h-4 w-4" />
-                  Busca avançada (por nome ou SKU)
-                </Label>
-                <Input
-                  id="searchMaterial"
-                  placeholder="Digite para filtrar materiais..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full"
-                />
-                {searchTerm && (
-                  <p className="text-xs text-muted-foreground">
-                    {filteredMaterials.length} {filteredMaterials.length === 1 ? 'material encontrado' : 'materiais encontrados'}
-                  </p>
-                )}
-              </div>
+              {searchTerm && (
+                <p className="text-xs text-muted-foreground">
+                  {filteredMaterials.length} {filteredMaterials.length === 1 ? 'material encontrado' : 'materiais encontrados'}
+                </p>
+              )}
             </div>
 
             {/* Materiais */}
