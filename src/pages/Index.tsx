@@ -1,29 +1,19 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { useState } from "react";
 import routerBg from "@/assets/router-bg.png";
-import routerBgPurple from "@/assets/router-bg-purple.png";
 
 const Index = () => {
-  const [usePurpleBg, setUsePurpleBg] = useState(false);
   
   return (
     <div 
-      className="min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 relative"
+      className="min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8"
       style={{
-        backgroundImage: `url(${usePurpleBg ? routerBgPurple : routerBg})`,
+        backgroundImage: `url(${routerBg})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
       }}
     >
-      <Button
-        onClick={() => setUsePurpleBg(!usePurpleBg)}
-        className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 text-white border border-white/30"
-        size="sm"
-      >
-        {usePurpleBg ? "Fundo Original" : "Fundo Roxo"}
-      </Button>
       <div className="max-w-md w-full">
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 sm:p-8 text-center shadow-strong">
           <div className="mb-6">
