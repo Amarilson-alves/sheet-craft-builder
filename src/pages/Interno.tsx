@@ -292,13 +292,13 @@ const Interno = () => {
 
       <main className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="consultar" className="flex items-center gap-2">
-              <Search className="h-4 w-4" />
+          <TabsList className="grid w-full grid-cols-2 p-2 gap-2">
+            <TabsTrigger value="consultar" className="flex items-center gap-2 py-3">
+              <Search className="h-5 w-5" />
               Consultar Obras
             </TabsTrigger>
-            <TabsTrigger value="materiais" className="flex items-center gap-2">
-              <Package className="h-4 w-4" />
+            <TabsTrigger value="materiais" className="flex items-center gap-2 py-3">
+              <Package className="h-5 w-5" />
               Gerenciar Materiais
             </TabsTrigger>
           </TabsList>
