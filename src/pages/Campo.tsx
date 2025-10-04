@@ -8,7 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { MaterialsButtonGrid } from "@/components/MaterialsButtonGrid";
 import { useMaterials } from "@/hooks/useMaterials";
-import { Save, Eraser, Building, User, Package, Minus, Plus, Filter } from "lucide-react";
+import { useDebounce } from "@/hooks/useDebounce";
+import { Save, Eraser, Building, User, Package, Minus, Plus, Filter, Search } from "lucide-react";
 import { gasPost } from "@/lib/gasClient";
 import type { Material, SelectedMaterial } from "@/types/material";
 import { BackButton } from "@/components/BackButton";
@@ -31,16 +32,42 @@ const Campo = () => {
   });
   const [selectedMaterials, setSelectedMaterials] = useState<SelectedMaterial[]>([]);
   const [filter, setFilter] = useState<FilterType>('none');
+  const [searchTerm, setSearchTerm] = useState('');
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
   const { data: materials, isLoading, isError } = useMaterials();
+  
+  // Debounce para o filtro de busca
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
-  // Filtrar materiais com base no filtro selecionado
+  // Filtrar materiais com base no filtro de categoria e busca
   const filteredMaterials = React.useMemo(() => {
-    if (filter === 'none' || !materials) return [];
-    if (filter === 'todos') return materials;
-    return materials.filter(m => m.Categoria.toLowerCase() === filter);
-  }, [materials, filter]);
+    if (!materials) return [];
+    
+    let result = materials;
+    
+    // Filtro de categoria
+    if (filter !== 'none' && filter !== 'todos') {
+      result = result.filter(m => m.Categoria.toLowerCase() === filter);
+    }
+    
+    // Filtro de busca por descrição ou SKU
+    if (debouncedSearchTerm.trim()) {
+      const searchLower = debouncedSearchTerm.toLowerCase();
+      result = result.filter(m => 
+        m.Descrição.toLowerCase().includes(searchLower) ||
+        m.SKU.toLowerCase().includes(searchLower)
+      );
+    }
+    
+    // Se há termo de busca, sempre mostra resultado (mesmo se filter === 'none')
+    // Se não há termo de busca, respeita o filtro de categoria
+    if (!debouncedSearchTerm.trim() && filter === 'none') {
+      return [];
+    }
+    
+    return result;
+  }, [materials, filter, debouncedSearchTerm]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -137,6 +164,7 @@ const Campo = () => {
       });
       setSelectedMaterials([]);
       setFilter('none');
+      setSearchTerm('');
 
     } catch (error) {
       console.error('Erro ao salvar obra:', error);
@@ -163,6 +191,7 @@ const Campo = () => {
     });
     setSelectedMaterials([]);
     setFilter('none');
+    setSearchTerm('');
     toast({
       title: "Formulário limpo",
       description: "Todos os dados foram removidos",
@@ -366,6 +395,26 @@ const Campo = () => {
                   Todos
                 </Button>
               </div>
+              
+              {/* Filtro de Busca Avançado */}
+              <div className="space-y-2">
+                <Label htmlFor="searchMaterial" className="flex items-center gap-2">
+                  <Search className="h-4 w-4" />
+                  Busca avançada (por nome ou SKU)
+                </Label>
+                <Input
+                  id="searchMaterial"
+                  placeholder="Digite para filtrar materiais..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full"
+                />
+                {searchTerm && (
+                  <p className="text-xs text-muted-foreground">
+                    {filteredMaterials.length} {filteredMaterials.length === 1 ? 'material encontrado' : 'materiais encontrados'}
+                  </p>
+                )}
+              </div>
             </div>
 
             {/* Materiais */}
@@ -374,10 +423,15 @@ const Campo = () => {
                 <Package className="h-12 w-12 mx-auto mb-2 opacity-50" />
                 <p>Erro ao carregar materiais. Tente novamente.</p>
               </div>
-            ) : filter === 'none' ? (
+            ) : filter === 'none' && !searchTerm.trim() ? (
               <div className="text-center py-8 text-muted-foreground">
                 <Filter className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>Selecione um filtro para visualizar materiais (Interno, Externo ou Todos)</p>
+                <p>Selecione um filtro ou use a busca para visualizar materiais</p>
+              </div>
+            ) : filteredMaterials.length === 0 && (searchTerm.trim() || filter !== 'none') ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Search className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>Nenhum material encontrado com os filtros aplicados</p>
               </div>
             ) : (
               <MaterialsButtonGrid
