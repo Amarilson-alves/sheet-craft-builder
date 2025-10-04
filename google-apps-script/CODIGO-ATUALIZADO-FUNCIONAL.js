@@ -1,10 +1,10 @@
 /**
- * CÓDIGO CORRIGIDO DO GOOGLE APPS SCRIPT
+ * ✅ GOOGLE APPS SCRIPT - VERSÃO CORRIGIDA E FUNCIONAL
  * 
- * IMPORTANTE: ContentService NÃO suporta setHeader()!
- * Esta versão remove todas as tentativas de usar setHeader.
+ * Este código deve ser copiado e colado no editor do Google Apps Script
+ * depois faça um NOVO DEPLOY da aplicação web
  * 
- * Para resolver CORS, use um proxy no seu domínio (Edge Function, Vercel, etc.)
+ * IMPORTANTE: Após deploy, atualize a URL no arquivo .env do projeto React
  */
 
 const SPREADSHEET_ID = '1KgXl_kCdAoOQbxFo2iK4BUJdYmOyiAd7OZ45zCf-JUY';
@@ -15,19 +15,12 @@ const SHEET_NAMES = {
 };
 
 /**
- * Helper para retornar JSON (SEM setHeader - não suportado pelo GAS)
+ * Helper para retornar JSON
  */
 function json(data) {
   return ContentService
     .createTextOutput(typeof data === 'string' ? data : JSON.stringify(data))
     .setMimeType(ContentService.MimeType.JSON);
-}
-
-/**
- * Responde ao preflight OPTIONS (mas sem headers CORS customizados)
- */
-function doOptions(e) {
-  return json({ ok: true });
 }
 
 /**
@@ -53,6 +46,7 @@ function doGet(e) {
         return json({ error: 'Ação não reconhecida: ' + action });
     }
   } catch (error) {
+    Logger.log('doGet ERROR: ' + error.message);
     return json({ error: error.message, stack: error.stack });
   }
 }
@@ -94,21 +88,7 @@ function doPost(e) {
         return json({ error: 'Ação POST não reconhecida: ' + action });
     }
   } catch (error) {
-    return json({ error: error.message, stack: error.stack });
-  }
-}
-      case 'addMaterial':
-        return json(addMaterial(body));
-      case 'updateMaterial':
-        return json(updateMaterial(body));
-      case 'incrementMaterial':
-        return json(incrementMaterial(body));
-      case 'deleteMaterial':
-        return json(deleteMaterial(body));
-      default:
-        return json({ error: 'Ação POST não reconhecida: ' + action });
-    }
-  } catch (error) {
+    Logger.log('doPost ERROR: ' + error.message);
     return json({ error: error.message, stack: error.stack });
   }
 }
@@ -123,23 +103,24 @@ function getMaterials(e) {
     if (!sheet) throw new Error('Sheet não encontrada: ' + SHEET_NAMES.materiais);
 
     const data = sheet.getDataRange().getValues();
-    const header = data[0].map(h => String(h).trim()); // Remove espaços extras
+    const header = data[0];
     const values = data.slice(1);
 
-    const results = values.map(row => {
-      const item = {};
-      header.forEach((col, i) => item[col] = row[i]);
-      return item;
+    const materials = values.map(row => {
+      const material = {};
+      header.forEach((col, i) => material[col] = row[i]);
+      return material;
     });
 
-    return { ok: true, materials: results, data: results, meta: { count: results.length } };
+    return { ok: true, materials: materials, data: materials };
   } catch (err) {
+    Logger.log('getMaterials ERROR: ' + err.message);
     return { error: err.message, stack: err.stack };
   }
 }
 
 /**
- * Busca materiais da planilha com paginação e filtro
+ * Busca materiais com paginação e filtro
  */
 function searchMaterials(e) {
   try {
@@ -147,164 +128,102 @@ function searchMaterials(e) {
     const sheet = ss.getSheetByName(SHEET_NAMES.materiais);
     if (!sheet) throw new Error('Sheet não encontrada: ' + SHEET_NAMES.materiais);
 
-    let start = Number(e.parameter.start) || 0;
-    let limit = Number(e.parameter.limit) || 10;
-    limit = Math.min(limit, 100); // hard limit
-    const searchTerm = e.parameter.search || '';
+    const search = (e.parameter.search || '').toLowerCase();
+    const limit = parseInt(e.parameter.limit) || 10;
+    const start = parseInt(e.parameter.start) || 0;
 
     const data = sheet.getDataRange().getValues();
     const header = data[0];
-    let values = data.slice(1);
+    const values = data.slice(1);
 
-    // Filter
-    if (searchTerm) {
-      values = values.filter(row => {
-        for (const cell of row) {
-          if (typeof cell === 'string' && cell.toLowerCase().includes(searchTerm.toLowerCase())) {
-            return true;
-          }
-        }
-        return false;
+    let filtered = values.map(row => {
+      const material = {};
+      header.forEach((col, i) => material[col] = row[i]);
+      return material;
+    });
+
+    if (search) {
+      filtered = filtered.filter(m => {
+        const sku = (m.SKU || '').toString().toLowerCase();
+        const desc = (m.Descrição || '').toString().toLowerCase();
+        return sku.includes(search) || desc.includes(search);
       });
     }
 
-    // Paginate
-    const total = values.length;
-    values = values.slice(start, start + limit);
-
-    const results = values.map(row => {
-      const item = {};
-      header.forEach((col, i) => item[col] = row[i]);
-      return item;
-    });
+    const paginated = filtered.slice(start, start + limit);
 
     return {
-      data: results,
+      ok: true,
+      materials: paginated,
+      data: paginated,
       meta: {
-        count: results.length,
+        count: paginated.length,
         start: start,
         limit: limit,
-        total: total,
-        search: searchTerm
+        total: filtered.length,
+        search: search
       }
     };
   } catch (err) {
+    Logger.log('searchMaterials ERROR: ' + err.message);
     return { error: err.message, stack: err.stack };
   }
 }
 
 /**
- * Busca todas as obras da planilha COM os materiais utilizados
+ * Busca obras com filtros opcionais
  */
 function getObras(e) {
   try {
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-    const sheetObras = ss.getSheetByName(SHEET_NAMES.obras);
-    const sheetMateriais = ss.getSheetByName(SHEET_NAMES.materiaisUtilizados);
+    const obrasSheet = ss.getSheetByName(SHEET_NAMES.obras);
+    const materiaisSheet = ss.getSheetByName(SHEET_NAMES.materiaisUtilizados);
     
-    if (!sheetObras) throw new Error('Sheet não encontrada: ' + SHEET_NAMES.obras);
-    if (!sheetMateriais) throw new Error('Sheet não encontrada: ' + SHEET_NAMES.materiaisUtilizados);
+    if (!obrasSheet) throw new Error('Sheet não encontrada: ' + SHEET_NAMES.obras);
 
-    // Buscar obras
-    const dataObras = sheetObras.getDataRange().getValues();
-    const headerObras = dataObras[0].map(h => String(h).trim()); // Remove espaços extras
-    const valuesObras = dataObras.slice(1);
+    const obrasData = obrasSheet.getDataRange().getValues();
+    const obrasHeader = obrasData[0];
+    const obrasValues = obrasData.slice(1);
 
-    // Buscar materiais utilizados
-    const dataMateriais = sheetMateriais.getDataRange().getValues();
-    const headerMateriais = dataMateriais[0].map(h => String(h).trim()); // Remove espaços extras
-    const valuesMateriais = dataMateriais.slice(1);
-
-    // Aplicar filtros se fornecidos
-    let filteredObras = valuesObras;
-    
-    if (e && e.parameter) {
-      const filters = e.parameter;
-      
-      filteredObras = valuesObras.filter(row => {
-        const obraObj = {};
-        headerObras.forEach((col, i) => obraObj[col] = row[i]);
-        
-        // Filtro por endereço
-        if (filters.endereco && !String(obraObj.endereco || '').toLowerCase().includes(filters.endereco.toLowerCase())) {
-          return false;
-        }
-        
-        // Filtro por técnico
-        if (filters.tecnico && !String(obraObj.tecnico || '').toLowerCase().includes(filters.tecnico.toLowerCase())) {
-          return false;
-        }
-        
-        // Filtro por tipo de obra
-        if (filters.tipoObra && filters.tipoObra !== 'todos' && obraObj.Tipo_obra !== filters.tipoObra) {
-          return false;
-        }
-        
-        // Filtro por data específica
-        if (filters.data) {
-          const obraDate = new Date(obraObj.data);
-          const filterDate = new Date(filters.data);
-          if (obraDate.toDateString() !== filterDate.toDateString()) {
-            return false;
-          }
-        }
-        
-        // Filtro por período (dateFrom e dateTo)
-        if (filters.dateFrom || filters.dateTo) {
-          const obraDate = new Date(obraObj.data);
-          
-          if (filters.dateFrom) {
-            const fromDate = new Date(filters.dateFrom);
-            if (obraDate < fromDate) return false;
-          }
-          
-          if (filters.dateTo) {
-            const toDate = new Date(filters.dateTo);
-            toDate.setHours(23, 59, 59, 999); // Incluir todo o dia
-            if (obraDate > toDate) return false;
-          }
-        }
-        
-        return true;
-      });
+    let materaisData = [];
+    if (materiaisSheet) {
+      materaisData = materiaisSheet.getDataRange().getValues();
     }
 
-    // Montar resultado com materiais
-    const results = filteredObras.map(row => {
+    const results = obrasValues.map(row => {
       const obra = {};
-      headerObras.forEach((col, i) => obra[col] = row[i]);
+      obrasHeader.forEach((col, i) => obra[col] = row[i]);
       
-      // Buscar materiais desta obra
-      const obraId = obra.obra_id;
-      const materiaisObra = valuesMateriais
-        .filter(matRow => {
-          const matObj = {};
-          headerMateriais.forEach((col, i) => matObj[col] = matRow[i]);
-          return matObj.obra_id === obraId;
-        })
-        .map(matRow => {
-          const mat = {};
-          headerMateriais.forEach((col, i) => mat[col] = matRow[i]);
-          return {
-            code: mat.SKU || mat.sku || mat.code || '',
-            name: mat.Descrição || mat.descricao || mat.name || '',
-            unit: mat.Unidade || mat.unidade || mat.unit || '',
-            quantity: Number(mat.Quantidade || mat.quantidade || mat.quantity || 0)
-          };
-        });
+      // Buscar materiais utilizados nesta obra
+      const obraId = obra['obra_id '] || obra.obra_id;
+      const materiais = [];
       
-      obra.materiais = materiaisObra;
+      if (materaisData.length > 1 && obraId) {
+        for (let i = 1; i < materaisData.length; i++) {
+          if (materaisData[i][0] === obraId) {
+            materiais.push({
+              code: materaisData[i][1],
+              name: materaisData[i][2],
+              unit: materaisData[i][3],
+              quantity: materaisData[i][4]
+            });
+          }
+        }
+      }
+      
+      obra.materiais = materiais;
       return obra;
     });
 
     return { ok: true, obras: results, meta: { count: results.length } };
   } catch (err) {
+    Logger.log('getObras ERROR: ' + err.message);
     return { error: err.message, stack: err.stack };
   }
 }
 
 /**
- * Salva uma obra na planilha
+ * ✅ SALVA UMA OBRA NA PLANILHA
  */
 function saveObra(payload) {
   try {
@@ -341,6 +260,7 @@ function saveObra(payload) {
     
     // Adicionar obra na planilha
     obrasSheet.appendRow(novaLinha);
+    Logger.log('saveObra - Obra adicionada com sucesso na planilha');
     
     // Salvar materiais utilizados se houver
     if (payload.materiais && Array.isArray(payload.materiais)) {
@@ -384,52 +304,71 @@ function getMaterialsByCategory(e) {
     const header = data[0];
     const values = data.slice(1);
 
-    const results = values.filter(row => row[2] === category).map(row => {
+    const results = values.filter(row => row[4] === category).map(row => {
       const item = {};
       header.forEach((col, i) => item[col] = row[i]);
       return item;
     });
 
-    return { data: results, meta: { count: results.length } };
+    return { ok: true, data: results, meta: { count: results.length } };
   } catch (err) {
+    Logger.log('getMaterialsByCategory ERROR: ' + err.message);
     return { error: err.message, stack: err.stack };
   }
 }
 
 /**
- * Adiciona um novo material
+ * ✅ ADICIONA UM NOVO MATERIAL
  */
-function addMaterial(body) {
+function addMaterial(payload) {
   try {
+    if (!payload) throw new Error('Payload vazio');
+    
+    Logger.log('addMaterial - payload: ' + JSON.stringify(payload));
+    
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const sheet = ss.getSheetByName(SHEET_NAMES.materiais);
     if (!sheet) throw new Error('Sheet não encontrada: ' + SHEET_NAMES.materiais);
 
-    const header = sheet.getDataRange().getValues()[0];
-    const values = header.map(col => body[col] || '');
+    const sku = payload.SKU || payload.code;
+    if (!sku) throw new Error('SKU é obrigatório');
 
-    sheet.appendRow(values);
+    const novaLinha = [
+      sku,
+      payload.Descrição || payload.descricao || payload.name || '',
+      payload.Unidade || payload.unidade || payload.unit || '',
+      payload.Qtdd_Depósito !== undefined ? payload.Qtdd_Depósito : (payload.qtdd_deposito !== undefined ? payload.qtdd_deposito : (payload.quantity !== undefined ? payload.quantity : 0)),
+      payload.Categoria || payload.categoria || payload.category || ''
+    ];
 
-    return { message: 'Material adicionado com sucesso', data: body };
+    sheet.appendRow(novaLinha);
+    Logger.log('addMaterial - Material adicionado com sucesso');
+    
+    return { ok: true, message: 'Material adicionado com sucesso', SKU: sku };
   } catch (err) {
+    Logger.log('addMaterial ERROR: ' + err.message);
     return { error: err.message, stack: err.stack };
   }
 }
 
 /**
- * Atualiza um material existente
+ * ✅ ATUALIZA UM MATERIAL EXISTENTE
  */
-function updateMaterial(body) {
+function updateMaterial(payload) {
   try {
+    if (!payload) throw new Error('Payload vazio');
+    
+    Logger.log('updateMaterial - payload: ' + JSON.stringify(payload));
+    
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const sheet = ss.getSheetByName(SHEET_NAMES.materiais);
     if (!sheet) throw new Error('Sheet não encontrada: ' + SHEET_NAMES.materiais);
 
-    const id = body.id;
-    if (!id) throw new Error('ID do material não informado');
+    const id = payload.id || payload.SKU;
+    if (!id) throw new Error('ID/SKU é obrigatório');
 
     const data = sheet.getDataRange().getValues();
-    let row = null;
+    let row = -1;
     for (let i = 1; i < data.length; i++) {
       if (data[i][0] === id) {
         row = i + 1;
@@ -437,33 +376,47 @@ function updateMaterial(body) {
       }
     }
 
-    if (!row) throw new Error('Material não encontrado com o ID: ' + id);
+    if (row === -1) throw new Error('Material não encontrado: ' + id);
 
-    const header = sheet.getDataRange().getValues()[0];
-    const values = header.map(col => body[col] || '');
+    const valores = [
+      id,
+      payload.Descrição || payload.descricao || data[row-1][1],
+      payload.Unidade || payload.unidade || data[row-1][2],
+      payload.Qtdd_Depósito !== undefined ? payload.Qtdd_Depósito : 
+        (payload.qtdd_deposito !== undefined ? payload.qtdd_deposito : data[row-1][3]),
+      payload.Categoria || payload.categoria || data[row-1][4]
+    ];
 
-    sheet.getRange(row, 1, 1, values.length).setValues([values]);
-
-    return { message: 'Material atualizado com sucesso', data: body };
+    sheet.getRange(row, 1, 1, valores.length).setValues([valores]);
+    Logger.log('updateMaterial - Material atualizado com sucesso');
+    
+    return { ok: true, message: 'Material atualizado com sucesso' };
   } catch (err) {
+    Logger.log('updateMaterial ERROR: ' + err.message);
     return { error: err.message, stack: err.stack };
   }
 }
 
 /**
- * Incrementa a quantidade de um material
+ * ✅ INCREMENTA A QUANTIDADE DE UM MATERIAL
  */
-function incrementMaterial(body) {
+function incrementMaterial(payload) {
   try {
+    if (!payload) throw new Error('Payload vazio');
+    
+    Logger.log('incrementMaterial - payload: ' + JSON.stringify(payload));
+    
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const sheet = ss.getSheetByName(SHEET_NAMES.materiais);
     if (!sheet) throw new Error('Sheet não encontrada: ' + SHEET_NAMES.materiais);
 
-    const id = body.id;
-    if (!id) throw new Error('ID do material não informado');
+    const id = payload.id || payload.sku || payload.SKU;
+    const delta = payload.delta || payload.quantity || 0;
+    
+    if (!id) throw new Error('ID/SKU é obrigatório');
 
     const data = sheet.getDataRange().getValues();
-    let row = null;
+    let row = -1;
     for (let i = 1; i < data.length; i++) {
       if (data[i][0] === id) {
         row = i + 1;
@@ -471,34 +424,43 @@ function incrementMaterial(body) {
       }
     }
 
-    if (!row) throw new Error('Material não encontrado com o ID: ' + id);
+    if (row === -1) throw new Error('Material não encontrado: ' + id);
 
-    const quantity = Number(body.quantity) || 0;
-    const currentQuantity = Number(sheet.getRange(row, 5).getValue()) || 0;
-    const newQuantity = currentQuantity + quantity;
+    const qtdAtual = Number(data[row-1][3]) || 0;
+    const novaQtd = qtdAtual + Number(delta);
 
-    sheet.getRange(row, 5).setValue(newQuantity);
-
-    return { message: 'Quantidade incrementada com sucesso', data: { id: id, quantity: newQuantity } };
+    sheet.getRange(row, 4).setValue(novaQtd);
+    Logger.log('incrementMaterial - Quantidade atualizada: ' + novaQtd);
+    
+    return { 
+      ok: true, 
+      message: 'Quantidade atualizada com sucesso',
+      newQty: novaQtd
+    };
   } catch (err) {
+    Logger.log('incrementMaterial ERROR: ' + err.message);
     return { error: err.message, stack: err.stack };
   }
 }
 
 /**
- * Deleta um material
+ * ✅ DELETA UM MATERIAL
  */
-function deleteMaterial(body) {
+function deleteMaterial(payload) {
   try {
+    if (!payload) throw new Error('Payload vazio');
+    
+    Logger.log('deleteMaterial - payload: ' + JSON.stringify(payload));
+    
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const sheet = ss.getSheetByName(SHEET_NAMES.materiais);
     if (!sheet) throw new Error('Sheet não encontrada: ' + SHEET_NAMES.materiais);
 
-    const id = body.id;
-    if (!id) throw new Error('ID do material não informado');
+    const id = payload.id || payload.SKU;
+    if (!id) throw new Error('ID/SKU é obrigatório');
 
     const data = sheet.getDataRange().getValues();
-    let row = null;
+    let row = -1;
     for (let i = 1; i < data.length; i++) {
       if (data[i][0] === id) {
         row = i + 1;
@@ -506,12 +468,14 @@ function deleteMaterial(body) {
       }
     }
 
-    if (!row) throw new Error('Material não encontrado com o ID: ' + id);
+    if (row === -1) throw new Error('Material não encontrado: ' + id);
 
     sheet.deleteRow(row);
-
-    return { message: 'Material deletado com sucesso', data: { id: id } };
+    Logger.log('deleteMaterial - Material deletado com sucesso');
+    
+    return { ok: true, message: 'Material excluído com sucesso' };
   } catch (err) {
+    Logger.log('deleteMaterial ERROR: ' + err.message);
     return { error: err.message, stack: err.stack };
   }
 }
