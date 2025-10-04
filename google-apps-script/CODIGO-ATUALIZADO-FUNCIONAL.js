@@ -284,11 +284,15 @@ function saveObra(payload) {
     if (payload.materiais && Array.isArray(payload.materiais)) {
       payload.materiais.forEach(function(mat) {
         const matLinha = [
-          obraId,              // obra_id
-          mat.code || '',      // SKU
-          mat.name || '',      // Descrição
-          mat.unit || '',      // Unidade
-          mat.quantity || 0    // Quantidade
+          obraId,                    // obra_id
+          payload.uf || '',          // uf
+          payload.endereco || '',    // endereco
+          payload.numero || '',      // numero
+          mat.code || '',            // SKU
+          mat.name || '',            // Descrição
+          mat.unit || '',            // Unidade
+          mat.quantity || 0,         // Quantidade
+          dataAtual                  // Data_Utilização
         ];
         materiaisSheet.appendRow(matLinha);
       });
