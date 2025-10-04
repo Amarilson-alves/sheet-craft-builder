@@ -17,10 +17,10 @@ const Index = () => {
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 text-center shadow-strong">
           <div className="mb-6">
             <h1 className="text-4xl font-bold text-white mb-2">
-              Hey Bem vindo Implantação - SUL
+              Cadastro de Materiais
             </h1>
             <p className="text-white/80 text-lg">
-              By LorD
+              Sistema para cadastrar e gerenciar materiais
             </p>
           </div>
           
