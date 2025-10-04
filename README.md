@@ -1,150 +1,208 @@
-# Sheet Craft Builder
+# Sistema de Cadastro de Materiais - v1.0
 
-Sistema para cadastro de materiais e obras para técnicos.
+## 📋 Descrição
 
-## 🚀 Tecnologias
+Sistema profissional de gerenciamento de obras e materiais desenvolvido para controle de estoque e rastreabilidade de materiais utilizados em campo. O sistema integra-se com Google Sheets para armazenamento e oferece interface otimizada para técnicos de campo e administradores.
 
-- **Frontend**: React 18 + TypeScript + Vite
-- **UI**: shadcn/ui + Tailwind CSS
-- **Data Fetching**: TanStack Query (React Query)
-- **Backend**: Google Apps Script
-- **Testing**: Vitest + Testing Library
-- **Code Quality**: ESLint + Prettier + Husky
+## 🚀 Funcionalidades
 
-## 📦 Instalação
+### 👨‍💼 Acesso Interno - Administração
+- **Consulta de Obras**: Filtros avançados por endereço, técnico, data e tipo de obra
+- **Exportação para Excel**: Geração automática de relatórios com materiais por obra e resumos
+- **Gerenciamento de Materiais**: 
+  - Adicionar novos materiais ao catálogo
+  - Editar informações (descrição, unidade, quantidade)
+  - Incrementar/decrementar estoque com histórico
+  - Excluir materiais com confirmação de segurança
+- **Busca Inteligente**: Pesquisa por SKU ou descrição com debounce
 
-```bash
-# Clone o repositório
-git clone <YOUR_GIT_URL>
-cd sheet-craft-builder
+### 🏗️ Acesso Campo - Técnicos
+- **Cadastro de Obras**: Registro completo com endereço, tipo e observações
+- **Seleção de Materiais**: Interface visual com filtros por categoria (Interno/Externo)
+- **Controle de Quantidade**: Ajuste rápido de quantidades por material
+- **Validação de Dados**: Validação em tempo real com feedback visual
+- **Rate Limiting**: Proteção contra envios duplicados
 
-# Instale as dependências
-npm install
+## 🛠️ Tecnologias Utilizadas
 
-# Configure as variáveis de ambiente
-cp .env.example .env
-# Edite o .env com sua URL do Google Apps Script
+- **Frontend**: React 18, TypeScript, Vite
+- **UI/UX**: TailwindCSS, Radix UI, Lucide Icons
+- **Estado**: TanStack Query (React Query)
+- **Validação**: Zod
+- **Roteamento**: React Router DOM v6
+- **Exportação**: SheetJS (xlsx)
+- **Backend**: Google Apps Script + Google Sheets
+
+## 📦 Estrutura do Projeto
+
+```
+src/
+├── components/          # Componentes React reutilizáveis
+│   ├── ui/             # Componentes de UI (Shadcn)
+│   ├── BackButton.tsx
+│   ├── ConfirmDeleteModal.tsx
+│   ├── EditMaterialModal.tsx
+│   ├── IncrementUnitsModal.tsx
+│   ├── MaterialsButtonGrid.tsx
+│   └── MaterialsSearchModal.tsx
+├── hooks/              # Custom React Hooks
+│   ├── useMaterials.ts
+│   ├── useDebounce.ts
+│   └── use-toast.ts
+├── lib/                # Utilitários e helpers
+│   ├── gasClient.ts    # Cliente Google Apps Script
+│   ├── flattenObras.ts # Transformação de dados para Excel
+│   ├── formatSKU.ts    # Formatação de códigos SKU
+│   └── utils.ts        # Funções auxiliares
+├── pages/              # Páginas da aplicação
+│   ├── Index.tsx       # Página inicial
+│   ├── Campo.tsx       # Acesso para técnicos
+│   ├── Interno.tsx     # Acesso administrativo
+│   └── NotFound.tsx    # Página 404
+├── services/           # Serviços de API
+│   └── materials.ts    # Operações com materiais
+├── types/              # Definições TypeScript
+│   └── material.ts
+├── utils/              # Utilitários de segurança
+│   ├── validators.ts   # Validadores de formulário
+│   ├── sanitize.ts     # Sanitização de dados
+│   ├── rateLimit.ts    # Controle de taxa
+│   └── permissions.ts  # Controle de acesso
+└── index.css           # Estilos globais e tema
+
+google-apps-script/
+└── CODIGO-ATUALIZADO-FUNCIONAL.js  # Backend Google Apps Script
 ```
 
 ## 🔧 Configuração
 
-### Variáveis de Ambiente
-
-Crie um arquivo `.env` baseado no `.env.example`:
+### 1. Instalação de Dependências
 
 ```bash
-VITE_API_BASE_URL=https://script.google.com/macros/s/SEU_SCRIPT_ID/exec
+npm install
 ```
 
-### Google Apps Script
+### 2. Configuração do Google Apps Script
 
-O backend utiliza Google Apps Script com os seguintes endpoints:
+1. Acesse [Google Apps Script](https://script.google.com/)
+2. Crie um novo projeto
+3. Copie o código de `google-apps-script/CODIGO-ATUALIZADO-FUNCIONAL.js`
+4. Atualize o `SPREADSHEET_ID` com o ID da sua planilha
+5. Faça deploy como Web App com acesso "Qualquer pessoa"
+6. Copie a URL gerada
 
-- `GET ?action=getMaterials` - Lista todos os materiais
-- `POST action=saveObra` - Salva uma nova obra
+### 3. Configuração de Variáveis de Ambiente
 
-## 🏃‍♂️ Scripts
+Atualize a URL do Google Apps Script em:
+- `src/lib/gasClient.ts` → constante `GAS_URL`
+- `src/lib/env.ts` → `VITE_API_BASE_URL` no schema
 
+### 4. Estrutura do Google Sheets
+
+Crie uma planilha com 3 abas:
+
+**Aba "Materiais":**
+| SKU | Descrição | Unidade | Qtdd_Depósito | Categoria |
+|-----|-----------|---------|---------------|-----------|
+
+**Aba "Obras":**
+| obra_id | tecnico | uf | endereco | numero | complemento | Tipo_obra | obs | data | status |
+|---------|---------|----|---------|---------|--------------|-----------|----|------|--------|
+
+**Aba "Materiais Utilizados":**
+| obra_id | uf | endereco | numero | SKU | Descrição | Unidade | Quantidade | Data_Utilização |
+|---------|----|---------|---------|----|-----------|---------|------------|-----------------|
+
+## 🚦 Executando o Projeto
+
+### Desenvolvimento
 ```bash
-# Desenvolvimento
 npm run dev
+```
 
-# Build de produção
+### Build para Produção
+```bash
 npm run build
+```
 
-# Preview da build
+### Preview da Build
+```bash
 npm run preview
-
-# Testes
-npm run test          # Executa todos os testes
-npm run test:watch    # Executa testes em modo watch
-npm run coverage      # Gera relatório de cobertura
-
-# Code Quality
-npm run typecheck     # Verifica tipos TypeScript
-npm run lint          # Executa ESLint
-npm run format        # Formata código com Prettier
 ```
 
-## 🎯 Funcionalidades
+### Testes
+```bash
+npm run test
+```
 
-### ✅ Implementado
+## 🔒 Segurança
 
-- **Busca Incremental de Materiais**: Campo de busca que filtra materiais por prefixo
-- **Filtros Avançados**: Por categoria (Interno/Externo) e disponibilidade
-- **Navegação por Teclado**: ↑/↓ para navegar, Enter para selecionar, Esc para fechar
-- **Acessibilidade**: ARIA labels, foco visível, navegação completa por teclado
-- **Responsividade**: Design mobile-first
-- **Validação**: Formulários com validação em tempo real
-- **Error Handling**: Tratamento robusto de erros de rede
-- **TypeScript**: Tipagem estrita com validação de ambiente
+- **Validação de Input**: Todos os campos são validados com Zod
+- **Sanitização**: Dados sanitizados antes de envio ao backend
+- **Rate Limiting**: Proteção contra spam e requisições duplicadas
+- **XSS Protection**: Sanitização de strings e números
+- **SQL Injection Protection**: Validação de comprimento e caracteres
 
-### 🔄 Melhorias da Refatoração
-
-1. **Substituição dos botões de materiais** por campo de busca incremental
-2. **Infraestrutura de desenvolvimento** completa (ESLint, Prettier, testes, CI)
-3. **Tipagem TypeScript** estrita com validação de environment
-4. **HTTP client** com timeout e tratamento de erros
-5. **React Query** para cache e gerenciamento de estado
-6. **Testes automatizados** com Vitest
-7. **CI/CD** com GitHub Actions
-
-## 🏗️ Arquitetura
+## 📊 Fluxo de Dados
 
 ```
-src/
-├── components/          # Componentes reutilizáveis
-│   ├── ui/             # Componentes base (shadcn)
-│   └── MaterialSearch/ # Busca de materiais
-├── hooks/              # Custom hooks
-├── lib/                # Utilitários e configurações
-├── pages/              # Páginas da aplicação
-├── services/           # Camada de dados/API
-├── types/              # Definições de tipos
-└── test/               # Configuração de testes
+[Frontend React] 
+    ↓ HTTP Request
+[Google Apps Script] 
+    ↓ Apps Script API
+[Google Sheets Database]
+    ↓ Response
+[Frontend React]
+    ↓ Export
+[Excel Download]
 ```
 
 ## 🎨 Design System
 
-O projeto utiliza um design system baseado em:
-- **Cores**: Tokens semânticos definidos no `index.css`
-- **Componentes**: shadcn/ui customizados
-- **Responsividade**: Mobile-first com Tailwind CSS
-- **Acessibilidade**: WCAG 2.1 Level AA
+O projeto utiliza um design system personalizado baseado em:
+- **Cores**: Sistema de tokens CSS para temas claro/escuro
+- **Tipografia**: Fontes system para melhor performance
+- **Componentes**: Shadcn UI customizados
+- **Animações**: Transições suaves e feedback visual
+- **Responsividade**: Mobile-first design
 
-## 🔄 CI/CD
+## 📝 Convenções de Código
 
-GitHub Actions executando:
-- ✅ TypeScript type checking
-- ✅ ESLint linting  
-- ✅ Tests com Vitest
-- ✅ Build de produção
+- **TypeScript**: Tipagem estrita habilitada
+- **ESLint**: Configuração com Prettier
+- **Commits**: Husky com lint-staged
+- **Nomenclatura**: camelCase para variáveis, PascalCase para componentes
 
-## 📱 Uso
+## 🐛 Troubleshooting
 
-### Cadastro de Obra
+### Erro de CORS
+- Verifique se o Google Apps Script está deployado corretamente
+- Confirme que o acesso está configurado como "Qualquer pessoa"
 
-1. Acesse a página "Campo"
-2. Preencha os dados da obra (técnico, endereço, tipo)
-3. Use o campo de busca para encontrar materiais
-4. Ajuste as quantidades conforme necessário
-5. Salve a obra
+### Dados não aparecem
+- Verifique se o `SPREADSHEET_ID` está correto
+- Confirme que as abas têm os nomes exatos especificados
 
-### Busca de Materiais
-
-- Digite qualquer parte do nome ou SKU do material
-- Use os filtros para refinar a busca
-- Navegue com as setas do teclado
-- Pressione Enter para selecionar
-
-## 🤝 Contribuição
-
-1. Fork o projeto
-2. Crie uma branch: `git checkout -b feature/nova-funcionalidade`
-3. Commit: `git commit -m 'feat: adiciona nova funcionalidade'`
-4. Push: `git push origin feature/nova-funcionalidade`
-5. Abra um Pull Request
+### Excel com erros
+- Certifique-se de que os dados não contêm valores `null` ou `undefined`
+- Verifique se todas as obras têm o array `materiais` definido
 
 ## 📄 Licença
 
-Este projeto está sob a licença MIT.
+Projeto proprietário - Todos os direitos reservados
+
+## 👥 Equipe
+
+- Desenvolvimento e Arquitetura: Sistema Cadastro de Materiais
+- Versão: 1.0.0
+- Data de Release: 2025
+
+## 🔄 Changelog
+
+### v1.0.0 (2025-10-04)
+- ✨ Sistema completo de cadastro de obras e materiais
+- 📊 Exportação para Excel com múltiplas abas
+- 🔍 Busca e filtros avançados
+- 🛡️ Validação e sanitização de dados
+- 🎨 Interface responsiva e moderna
+- 🔐 Rate limiting e segurança implementados
