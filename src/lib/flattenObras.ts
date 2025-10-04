@@ -35,10 +35,10 @@ export function flattenObras(obras: any[]) {
     for (const m of o.materiais) {
       rows.push({
         ...base,
-        SKU: m.code ?? m.SKU ?? "",
-        Descrição: m.name ?? m.Descrição ?? "",
-        Unidade: m.unit ?? m.Unidade ?? "",
-        Quantidade: Number(m.quantity ?? m.Quantidade ?? 0),
+        SKU: m.SKU ?? m.code ?? "",
+        Descrição: m.Descrição ?? m['Descrição '] ?? m.name ?? "",
+        Unidade: m.Unidade ?? m.unit ?? "",
+        Quantidade: Number(m.Quantidade ?? m.quantity ?? 0),
       });
     }
   }
