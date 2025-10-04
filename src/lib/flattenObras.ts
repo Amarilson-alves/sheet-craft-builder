@@ -5,7 +5,10 @@
 export function flattenObras(obras: any[]) {
   const rows: any[] = [];
   
+  console.log('flattenObras - Input obras:', JSON.stringify(obras, null, 2));
+  
   for (const o of obras) {
+    console.log('Processing obra:', o.obra_id, 'materiais:', o.materiais);
     const base = {
       obra_id: o.obra_id ?? o['obra_id '] ?? o.ID ?? o.id ?? "",
       tecnico: o.tecnico ?? "",
