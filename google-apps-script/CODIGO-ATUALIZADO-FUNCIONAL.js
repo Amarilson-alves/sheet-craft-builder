@@ -208,31 +208,103 @@ function getObras(e) {
       materaisData = materiaisSheet.getDataRange().getValues();
     }
 
-    const results = obrasValues.map(row => {
-      const obra = {};
-      obrasHeader.forEach((col, i) => obra[col] = row[i]);
-      
-      // Buscar materiais utilizados nesta obra
-      const obraId = obra['obra_id '] || obra.obra_id;
-      const materiais = [];
-      
-      if (materaisData.length > 1 && obraId) {
-        for (let i = 1; i < materaisData.length; i++) {
-          if (materaisData[i][0] === obraId) {
-            // Aba "Materiais Utilizados": obra_id | uf | endereco | numero | SKU | Descrição | Unidade | Quantidade
-            materiais.push({
-              SKU: materaisData[i][4],
-              Descrição: materaisData[i][5],
-              Unidade: materaisData[i][6],
-              Quantidade: materaisData[i][7]
-            });
+    // Extrair filtros dos parâmetros
+    const params = e.parameter || {};
+    const filtroEndereco = params.endereco ? params.endereco.toLowerCase() : null;
+    const filtroTecnico = params.tecnico ? params.tecnico.toLowerCase() : null;
+    const filtroUF = params.uf ? params.uf : null;
+    const filtroData = params.data ? new Date(params.data) : null;
+    const filtroDateFrom = params.dateFrom ? new Date(params.dateFrom) : null;
+    const filtroDateTo = params.dateTo ? new Date(params.dateTo) : null;
+    const filtroTipoObra = params.tipoObra && params.tipoObra !== 'todos' ? params.tipoObra : null;
+
+    const results = obrasValues
+      .map(row => {
+        const obra = {};
+        obrasHeader.forEach((col, i) => obra[col] = row[i]);
+        
+        // Buscar materiais utilizados nesta obra
+        const obraId = obra['obra_id '] || obra.obra_id;
+        const materiais = [];
+        
+        if (materaisData.length > 1 && obraId) {
+          for (let i = 1; i < materaisData.length; i++) {
+            if (materaisData[i][0] === obraId) {
+              // Aba "Materiais Utilizados": obra_id | uf | endereco | numero | SKU | Descrição | Unidade | Quantidade
+              materiais.push({
+                SKU: materaisData[i][4],
+                Descrição: materaisData[i][5],
+                Unidade: materaisData[i][6],
+                Quantidade: materaisData[i][7]
+              });
+            }
           }
         }
-      }
-      
-      obra.materiais = materiais;
-      return obra;
-    });
+        
+        obra.materiais = materiais;
+        return obra;
+      })
+      .filter(obra => {
+        // Aplicar filtros
+        
+        // Filtro de endereço
+        if (filtroEndereco && (!obra.endereco || !obra.endereco.toLowerCase().includes(filtroEndereco))) {
+          return false;
+        }
+        
+        // Filtro de técnico
+        if (filtroTecnico && (!obra.tecnico || !obra.tecnico.toLowerCase().includes(filtroTecnico))) {
+          return false;
+        }
+        
+        // Filtro de UF
+        if (filtroUF && obra.uf !== filtroUF) {
+          return false;
+        }
+        
+        // Filtro de tipo de obra
+        if (filtroTipoObra && obra.Tipo_obra !== filtroTipoObra) {
+          return false;
+        }
+        
+        // Filtro de data específica
+        if (filtroData) {
+          const obraData = obra['data '] || obra.data;
+          if (!obraData) return false;
+          
+          const obraDate = new Date(obraData);
+          // Comparar apenas ano, mês e dia
+          if (obraDate.getFullYear() !== filtroData.getFullYear() ||
+              obraDate.getMonth() !== filtroData.getMonth() ||
+              obraDate.getDate() !== filtroData.getDate()) {
+            return false;
+          }
+        }
+        
+        // Filtro de período (data inicial e final)
+        if (filtroDateFrom || filtroDateTo) {
+          const obraData = obra['data '] || obra.data;
+          if (!obraData) return false;
+          
+          const obraDate = new Date(obraData);
+          
+          // Verificar se está dentro do período
+          if (filtroDateFrom && obraDate < filtroDateFrom) {
+            return false;
+          }
+          
+          if (filtroDateTo) {
+            // Adicionar 1 dia ao filtroDateTo para incluir o dia inteiro
+            const dateToEnd = new Date(filtroDateTo);
+            dateToEnd.setDate(dateToEnd.getDate() + 1);
+            if (obraDate >= dateToEnd) {
+              return false;
+            }
+          }
+        }
+        
+        return true;
+      });
 
     return { ok: true, obras: results, meta: { count: results.length } };
   } catch (err) {
