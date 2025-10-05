@@ -87,13 +87,17 @@ const Interno = () => {
   const loadObras = async () => {
     setLoading(true);
     try {
+      // Enviar apenas filtros que não sejam de data para o backend
+      const backendFilters: Record<string, string> = {};
+      
+      if (filters.endereco) backendFilters.endereco = filters.endereco;
+      if (filters.tecnico) backendFilters.tecnico = filters.tecnico;
+      if (filters.uf && filters.uf !== 'todos') backendFilters.uf = filters.uf;
+      if (filters.tipoObra && filters.tipoObra !== 'todos') backendFilters.tipoObra = filters.tipoObra;
+
       const params: Record<string, string> = {
         action: 'getObras',
-        ...Object.fromEntries(
-          Object.entries(filters)
-            .filter(([key, v]) => v && !(key === 'tipoObra' && v === 'todos') && !(key === 'uf' && v === 'todos'))
-            .map(([k, v]) => [k, String(v)])
-        )
+        ...backendFilters
       };
 
       const data = await gasGet(params);
@@ -102,10 +106,47 @@ const Interno = () => {
         throw new Error(data.error);
       }
 
-      setObras(data.obras || []);
+      let obrasResult = data.obras || [];
+
+      // Aplicar filtros de data localmente no frontend
+      if (filters.data || filters.dateFrom || filters.dateTo) {
+        obrasResult = obrasResult.filter((obra: Obra) => {
+          const obraData = obra['data '] || obra.data;
+          if (!obraData) return false;
+
+          const obraDate = new Date(obraData);
+
+          // Filtro de data específica
+          if (filters.data) {
+            const filterDate = new Date(filters.data);
+            return (
+              obraDate.getFullYear() === filterDate.getFullYear() &&
+              obraDate.getMonth() === filterDate.getMonth() &&
+              obraDate.getDate() === filterDate.getDate()
+            );
+          }
+
+          // Filtro de período
+          if (filters.dateFrom) {
+            const dateFrom = new Date(filters.dateFrom);
+            dateFrom.setHours(0, 0, 0, 0);
+            if (obraDate < dateFrom) return false;
+          }
+
+          if (filters.dateTo) {
+            const dateTo = new Date(filters.dateTo);
+            dateTo.setHours(23, 59, 59, 999);
+            if (obraDate > dateTo) return false;
+          }
+
+          return true;
+        });
+      }
+
+      setObras(obrasResult);
       toast({
         title: "Consulta realizada",
-        description: `${data.obras?.length || 0} obras encontradas`,
+        description: `${obrasResult.length} obras encontradas`,
       });
     } catch (error) {
       console.error('Erro ao carregar obras:', error);
