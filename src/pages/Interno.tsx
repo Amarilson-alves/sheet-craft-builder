@@ -60,6 +60,7 @@ const Interno = () => {
   const [filters, setFilters] = useState({
     endereco: '',
     tecnico: '',
+    uf: '',
     data: '',
     dateFrom: '',
     dateTo: '',
@@ -238,6 +239,7 @@ const Interno = () => {
     setFilters({
       endereco: '',
       tecnico: '',
+      uf: '',
       data: '',
       dateFrom: '',
       dateTo: '',
@@ -332,11 +334,49 @@ const Interno = () => {
                     />
                   </div>
                   <div className="space-y-2">
+                    <Label className="text-sm">Filtrar por UF:</Label>
+                    <Select value={filters.uf} onValueChange={(value) => setFilters(prev => ({ ...prev, uf: value }))}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o estado" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-background z-50">
+                        <SelectItem value="">Todos</SelectItem>
+                        <SelectItem value="AC">AC</SelectItem>
+                        <SelectItem value="AL">AL</SelectItem>
+                        <SelectItem value="AP">AP</SelectItem>
+                        <SelectItem value="AM">AM</SelectItem>
+                        <SelectItem value="BA">BA</SelectItem>
+                        <SelectItem value="CE">CE</SelectItem>
+                        <SelectItem value="DF">DF</SelectItem>
+                        <SelectItem value="ES">ES</SelectItem>
+                        <SelectItem value="GO">GO</SelectItem>
+                        <SelectItem value="MA">MA</SelectItem>
+                        <SelectItem value="MT">MT</SelectItem>
+                        <SelectItem value="MS">MS</SelectItem>
+                        <SelectItem value="MG">MG</SelectItem>
+                        <SelectItem value="PA">PA</SelectItem>
+                        <SelectItem value="PB">PB</SelectItem>
+                        <SelectItem value="PR">PR</SelectItem>
+                        <SelectItem value="PE">PE</SelectItem>
+                        <SelectItem value="PI">PI</SelectItem>
+                        <SelectItem value="RJ">RJ</SelectItem>
+                        <SelectItem value="RN">RN</SelectItem>
+                        <SelectItem value="RS">RS</SelectItem>
+                        <SelectItem value="RO">RO</SelectItem>
+                        <SelectItem value="RR">RR</SelectItem>
+                        <SelectItem value="SC">SC</SelectItem>
+                        <SelectItem value="SP">SP</SelectItem>
+                        <SelectItem value="SE">SE</SelectItem>
+                        <SelectItem value="TO">TO</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
                     <Label className="text-sm">Filtrar por Data Específica:</Label>
                     <Input
                       type="date"
                       value={filters.data}
-                      onChange={(e) => setFilters(prev => ({ ...prev, data: e.target.value }))}
+                      onChange={(e) => setFilters(prev => ({ ...prev, data: e.target.value, dateFrom: '', dateTo: '' }))}
                     />
                   </div>
                   <div className="space-y-2">
@@ -344,7 +384,7 @@ const Interno = () => {
                     <Input
                       type="date"
                       value={filters.dateFrom}
-                      onChange={(e) => setFilters(prev => ({ ...prev, dateFrom: e.target.value }))}
+                      onChange={(e) => setFilters(prev => ({ ...prev, dateFrom: e.target.value, data: '' }))}
                     />
                   </div>
                   <div className="space-y-2">
@@ -352,7 +392,7 @@ const Interno = () => {
                     <Input
                       type="date"
                       value={filters.dateTo}
-                      onChange={(e) => setFilters(prev => ({ ...prev, dateTo: e.target.value }))}
+                      onChange={(e) => setFilters(prev => ({ ...prev, dateTo: e.target.value, data: '' }))}
                     />
                   </div>
                   <div className="space-y-2">
@@ -361,7 +401,7 @@ const Interno = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o tipo" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-background z-50">
                         <SelectItem value="todos">Todos</SelectItem>
                         <SelectItem value="Alivio">Alívio</SelectItem>
                         <SelectItem value="Adequacao">Adequação</SelectItem>
