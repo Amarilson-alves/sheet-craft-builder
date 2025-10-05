@@ -60,7 +60,7 @@ const Interno = () => {
   const [filters, setFilters] = useState({
     endereco: '',
     tecnico: '',
-    uf: '',
+    uf: 'todos',
     data: '',
     dateFrom: '',
     dateTo: '',
@@ -91,7 +91,7 @@ const Interno = () => {
         action: 'getObras',
         ...Object.fromEntries(
           Object.entries(filters)
-            .filter(([key, v]) => v && !(key === 'tipoObra' && v === 'todos'))
+            .filter(([key, v]) => v && !(key === 'tipoObra' && v === 'todos') && !(key === 'uf' && v === 'todos'))
             .map(([k, v]) => [k, String(v)])
         )
       };
@@ -239,7 +239,7 @@ const Interno = () => {
     setFilters({
       endereco: '',
       tecnico: '',
-      uf: '',
+      uf: 'todos',
       data: '',
       dateFrom: '',
       dateTo: '',
@@ -340,7 +340,7 @@ const Interno = () => {
                         <SelectValue placeholder="Selecione o estado" />
                       </SelectTrigger>
                       <SelectContent className="bg-background z-50">
-                        <SelectItem value="">Todos</SelectItem>
+                        <SelectItem value="todos">Todos</SelectItem>
                         <SelectItem value="AC">AC</SelectItem>
                         <SelectItem value="AL">AL</SelectItem>
                         <SelectItem value="AP">AP</SelectItem>
