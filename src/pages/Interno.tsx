@@ -341,33 +341,10 @@ const Interno = () => {
                       </SelectTrigger>
                       <SelectContent className="bg-background z-50">
                         <SelectItem value="todos">Todos</SelectItem>
-                        <SelectItem value="AC">AC</SelectItem>
-                        <SelectItem value="AL">AL</SelectItem>
-                        <SelectItem value="AP">AP</SelectItem>
-                        <SelectItem value="AM">AM</SelectItem>
-                        <SelectItem value="BA">BA</SelectItem>
-                        <SelectItem value="CE">CE</SelectItem>
-                        <SelectItem value="DF">DF</SelectItem>
-                        <SelectItem value="ES">ES</SelectItem>
-                        <SelectItem value="GO">GO</SelectItem>
-                        <SelectItem value="MA">MA</SelectItem>
-                        <SelectItem value="MT">MT</SelectItem>
-                        <SelectItem value="MS">MS</SelectItem>
-                        <SelectItem value="MG">MG</SelectItem>
-                        <SelectItem value="PA">PA</SelectItem>
-                        <SelectItem value="PB">PB</SelectItem>
                         <SelectItem value="PR">PR</SelectItem>
-                        <SelectItem value="PE">PE</SelectItem>
-                        <SelectItem value="PI">PI</SelectItem>
-                        <SelectItem value="RJ">RJ</SelectItem>
-                        <SelectItem value="RN">RN</SelectItem>
-                        <SelectItem value="RS">RS</SelectItem>
-                        <SelectItem value="RO">RO</SelectItem>
-                        <SelectItem value="RR">RR</SelectItem>
+                        <SelectItem value="PRI">PRI</SelectItem>
                         <SelectItem value="SC">SC</SelectItem>
-                        <SelectItem value="SP">SP</SelectItem>
-                        <SelectItem value="SE">SE</SelectItem>
-                        <SelectItem value="TO">TO</SelectItem>
+                        <SelectItem value="RS">RS</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
